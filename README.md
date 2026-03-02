@@ -32,14 +32,14 @@ A FastAPI-based microservice for managing coding questions with support for CRUD
 
 ### Backend Setup
 
-1. Navigate to the `backend` directory:
+1. Navigate to the `backend/question-service` directory:
 ```bash
-   cd backend
+   cd backend/question-service
 ```
 
 2. Create a copy of the `.env.sample` file (in root) and name it `.env` (in root):
 ```bash
-   cp ../.env.sample ../.env
+   cp ../../.env.sample ../../.env
 ```
 
 3. Create a MongoDB Atlas Cluster and obtain the connection string:
@@ -51,6 +51,12 @@ A FastAPI-based microservice for managing coding questions with support for CRUD
 4. Add the connection string to the `.env` file in the root directory:
 ```
    DB_CLOUD_URI=<PLACE CLOUD URI HERE>
+```
+
+5. Create and activate Python venv:
+```bash
+   python -m venv venv
+   source venv/Scripts/activate
 ```
 
 5. Install Python dependencies:
