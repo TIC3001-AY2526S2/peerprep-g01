@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException
 from models.models import Question
 from services.question_service import (
-    get_all_questions_service,
+    get_questions_service,
     create_question_service,
     update_question_service,
     delete_question_service
@@ -14,9 +14,12 @@ router = APIRouter(
 
 
 @router.get("/")
-async def get_all_questions():
-    """Get all questions"""
-    return await get_all_questions_service()
+async def get_questions(
+    page: int = 1,
+    limit: int = 10,
+    search: str = None
+):
+    return await get_questions_service(page, limit, search)
 
 
 @router.post("/")
