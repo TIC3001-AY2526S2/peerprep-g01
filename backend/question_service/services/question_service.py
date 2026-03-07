@@ -2,8 +2,8 @@ from bson.objectid import ObjectId
 from datetime import datetime
 from fastapi import HTTPException
 from configurations import collection
-from models.models import Question
-from database.serializers import all_data 
+from question_service.models.models import Question
+from question_service.database.serializers import all_data 
 from pymongo.errors import DuplicateKeyError
 
 async def get_all_questions_service():

@@ -12,9 +12,9 @@ uri = os.getenv("DB_CLOUD_URI")
 
 print (f'[*] URI - {uri}')
 
-# ip_request = requests.get('https://ipwho.is')
-# data = ip_request.json()
-# print(f'[+] IP Address - {data.get('ip')}')
+ip_request = requests.get('https://ipwho.is')
+data = ip_request.json()
+print(f'[+] IP Address - {data.get('ip')}')
 
 if not uri:
     raise ValueError("DB_CLOUD_URI not set in .env file")
