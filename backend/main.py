@@ -1,11 +1,30 @@
+import json
+import os
+from contextlib import asynccontextmanager
+from configurations import collection
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from question_service.routes import questions
 
+async def lifespan(app: FastAPI):
+    # This block runs on STARTUP
+    if collection.count_documents({}) == 0:
+        print("[*] Populating database from questions.json...")
+        json_path = os.path.join(os.path.dirname(__file__), "question_service/database", "questions.json")
+        try:
+            with open(json_path, "r") as file:
+                data = json.load(file)
+            collection.insert_many(data)
+            print(f"[+] {len(data)} questions added to MongoDB.")
+        except Exception as e:
+            print(f"[!] Error loading JSON: {e}")
+    yield
+
 app = FastAPI(
     title="Questions API",
     description="API for managing questions",
-    version="1.0.0"
+    version="1.0.0",
+    lifespan=lifespan
 )
 
 origins = [

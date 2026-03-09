@@ -28,7 +28,7 @@ async def get_questions_service(
         skip = (page - 1) * limit
 
         cursor = collection.find(query) \
-            .sort("created_at", -1) \
+            .sort([("created_at", -1), ("_id", -1)]) \
             .skip(skip) \
             .limit(limit)
 
