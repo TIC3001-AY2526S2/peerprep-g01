@@ -32,28 +32,23 @@ A FastAPI-based microservice for managing coding questions with support for CRUD
 
 ### Backend Setup
 
-1. Navigate to the `backend/question-service` directory:
+1. Create a copy of the `.env.sample` file (in root) and name it `.env` (in root):
 ```bash
-   cd backend/question-service
+   cp .env.sample .env
 ```
 
-2. Create a copy of the `.env.sample` file (in root) and name it `.env` (in root):
-```bash
-   cp ../../.env.sample ../../.env
-```
-
-3. Create a MongoDB Atlas Cluster and obtain the connection string:
+2. Create a MongoDB Atlas Cluster and obtain the connection string:
    - Log in to [MongoDB Atlas](https://www.mongodb.com/cloud/atlas)
    - Create a new cluster or use an existing one
    - Click "Connect" and choose "Drivers"
    - Copy the connection string
 
-4. Add the connection string to the `.env` file in the root directory:
+3. Add the connection string to the `.env` file in the root directory:
 ```
    DB_CLOUD_URI=<PLACE CLOUD URI HERE>
 ```
 
-5. Create and activate Python venv:
+4. Create and activate Python venv:
 ```bash
    python -m venv venv
    source venv/Scripts/activate
@@ -66,6 +61,7 @@ A FastAPI-based microservice for managing coding questions with support for CRUD
 
 6. Start the backend service:
 ```bash
+   cd backend
    uvicorn main:app --reload
 ```
 
