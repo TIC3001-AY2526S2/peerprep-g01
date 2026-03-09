@@ -2,7 +2,6 @@ import os
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
 from dotenv import load_dotenv
-import requests
 
 load_dotenv()
 uri = os.getenv("DB_CLOUD_URI")
