@@ -50,3 +50,11 @@ export async function deleteQuestion(id) {
     });
     return handleResponse(res);
 }
+
+export async function uploadQuestions(formData) {
+    const response = await fetch(`${API_BASE}/upload_questions`, {
+        method: "POST",
+        body: formData
+    });
+    return handleResponse(response);
+}
