@@ -23,9 +23,9 @@ export default function App() {
     setDisplayQuestion(question);
   };
 
-  const handleCreateSuccess = () => {
-    setRefresh((prev) => !prev);
-    showToast("Question created successfully!");
+  const handleCreateSuccess = (message = "Question created successfully!", type = "success") => {
+      setRefresh((prev) => !prev);
+      showToast(message, type);
   };
 
   const handleUpdateSuccess = () => {

@@ -67,21 +67,28 @@ export default function QuestionForm({ onSuccess }) {
   };
 
   const handleFileUpload = async () => {
-    if (file === null) {
-      return;
-    }
+      if (file === null) return;
 
-    const formData = new FormData();
-    formData.append("file", file);
+      const formData = new FormData();
+      formData.append("file", file);
 
-    try {
-      await uploadQuestions(formData);
-      setFile(null);
-      document.querySelector('input[type="file"]').value = "";
-      onSuccess();
-    } catch (err) {
-      setError("Failed to upload JSON file");
-    }
+      try {
+          const result = await uploadQuestions(formData);
+
+          setFile(null);
+          document.querySelector('input[type="file"]').value = "";
+
+          // Pass both the message and type up to App.jsx
+          if (result.status_code === 200) {
+              onSuccess(result.message, "success");
+          } else if (result.status_code === 207) {
+              onSuccess(result.message, "info");  // partial success
+          } else {
+              setError(result.message || "Upload failed");
+          }
+      } catch (err) {
+          setError(err.message || "Failed to upload JSON file");
+      }
   };
 
   return (
