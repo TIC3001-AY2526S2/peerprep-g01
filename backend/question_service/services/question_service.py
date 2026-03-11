@@ -5,6 +5,7 @@ from configurations import collection
 from question_service.models.models import Question
 from question_service.database.serializers import all_data 
 from pymongo.errors import BulkWriteError, DuplicateKeyError
+from pydantic import ValidationError
 import json
 
 async def get_all_questions_service():
@@ -162,6 +163,29 @@ async def mass_question_upload(file: UploadFile = File()):
         return statusObject
     data = await file.read()
     questions = json.loads(data)
+
+    # Validate all questions before inserting any
+    invalid_entries = []
+    for i, q in enumerate(questions):
+        try:
+            Question(**q)
+        except ValidationError as e:
+            invalid_entries.append({
+                "index": i,
+                "title": q.get("title", f"Question at index {i}"),
+                "errors": e.errors()
+            })
+
+    if invalid_entries:
+        statusObject['status_code'] = 422
+        statusObject['message'] = (
+            f"{len(invalid_entries)} question(s) failed validation: "
+            + ", ".join(
+                f"'{entry['title']}' missing {[err['loc'][0] for err in entry['errors']]}"
+                for entry in invalid_entries
+            )
+        )
+        return statusObject
     try:
         collection.insert_many(questions,ordered=False)
         statusObject['status_code'] = 200
