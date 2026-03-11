@@ -2,8 +2,8 @@ const API_BASE = "http://localhost:8000/questions";
 
 async function handleResponse(res) {
     if (!res.ok) {
-        const text = await res.text();
-        throw new Error(text || "Request failed");
+        const data = await res.json();
+        throw new Error(data.detail || "Request failed");
     }
     return res.json();
 }

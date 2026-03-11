@@ -29,8 +29,9 @@ export default function QuestionForm({ onSuccess }) {
     }));
   };
 
-  const handleFileChange = (event) => {
-    setFile(event.target.files[0]);
+  const handleFileChange = (e) => {
+    const selectedFile = e.target.files[0];
+    setFile(selectedFile || null);
   };
 
   const handleSubmit = async (e) => {
@@ -76,6 +77,7 @@ export default function QuestionForm({ onSuccess }) {
     try {
       await uploadQuestions(formData);
       setFile(null);
+      document.querySelector('input[type="file"]').value = "";
       onSuccess();
     } catch (err) {
       setError("Failed to upload JSON file");
@@ -162,7 +164,7 @@ export default function QuestionForm({ onSuccess }) {
         <button
           type="button"
           onClick={handleFileUpload}
-          disabled={file === null}
+          disabled={!file}
         >
           Upload JSON
         </button>
