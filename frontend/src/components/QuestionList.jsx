@@ -113,7 +113,18 @@ export default function QuestionList({ onDisplay, onEdit, onDeleteSuccess, refre
                 className="search-box"
             />
 
-            {error && <div className="error">{error}</div>}
+            {error && (
+                <div className="error">
+                <span>{error}</span>
+                <button
+                    className="error-close"
+                    onClick={() => setError("")}
+                    aria-label="Close error"
+                >
+                    ×
+                </button>
+                </div>
+            )}
 
             {questions.length === 0 && <div>No questions in database</div>}
 

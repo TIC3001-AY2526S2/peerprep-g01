@@ -6,73 +6,73 @@ import DisplayQuestionModal from "./components/DisplayQuestionModal";
 import Toast from "./components/Toast";
 
 export default function App() {
-    const [displayQuestion, setDisplayQuestion] = useState(null);
-    const [editingQuestion, setEditingQuestion] = useState(null);
-    const [refresh, setRefresh] = useState(false);
-    const [toast, setToast] = useState({ message: "", type: "success" });
+  const [displayQuestion, setDisplayQuestion] = useState(null);
+  const [editingQuestion, setEditingQuestion] = useState(null);
+  const [refresh, setRefresh] = useState(false);
+  const [toast, setToast] = useState({ message: "", type: "success" });
 
-    const showToast = (message, type = "success") => {
-        setToast({ message, type });
-    };
+  const showToast = (message, type = "success") => {
+    setToast({ message, type });
+  };
 
-    const handleEdit = (question) => {
-        setEditingQuestion(question);
-    };
+  const handleEdit = (question) => {
+    setEditingQuestion(question);
+  };
 
-    const handleDisplay = (question) => {
-        setDisplayQuestion(question);
-    };
+  const handleDisplay = (question) => {
+    setDisplayQuestion(question);
+  };
 
-    const handleCreateSuccess = () => {
-        setRefresh(prev => !prev);
-        showToast("Question created successfully!");
-    };
+  const handleCreateSuccess = (message = "Question created successfully!", type = "success") => {
+      setRefresh((prev) => !prev);
+      showToast(message, type);
+  };
 
-    const handleUpdateSuccess = () => {
-        setRefresh(prev => !prev);
-        setEditingQuestion(null);
-        showToast("Question updated successfully!");
-    };
+  const handleUpdateSuccess = () => {
+    setRefresh((prev) => !prev);
+    setEditingQuestion(null);
+    showToast("Question updated successfully!");
+  };
 
-    const handleDeleteSuccess = () => {
-        setRefresh(prev => !prev);
-        showToast("Question deleted successfully!");
-    };
+  const handleDeleteSuccess = () => {
+    setRefresh((prev) => !prev);
+    showToast("Question deleted successfully!");
+  };
 
-    return (
-        <div className="app-container">
-            <h1>PeerPrep Question Manager</h1>
+  return (
+    <div className="app-container">
+      <h1>PeerPrep Question Manager</h1>
 
-            {/* Create question form */}
-            <QuestionForm onSuccess={handleCreateSuccess} />
+      {/* Create question form */}
+      <QuestionForm onSuccess={handleCreateSuccess} />
 
-            {/* Question list */}
-            <QuestionList
-                onDisplay={handleDisplay}
-                onEdit={handleEdit}
-                onDeleteSuccess={handleDeleteSuccess}
-                refresh={refresh}
-            />
+      {/* Question list */}
+      <QuestionList
+        onDisplay={handleDisplay}
+        onEdit={handleEdit}
+        onDeleteSuccess={handleDeleteSuccess}
+        refresh={refresh}
+      />
 
-            {/* Edit modal */}
-            <EditQuestionModal
-                question={editingQuestion}
-                onClose={() => setEditingQuestion(null)}
-                onSuccess={handleUpdateSuccess}
-            />
+      {/* Edit modal */}
+      <EditQuestionModal
+        question={editingQuestion}
+        onClose={() => setEditingQuestion(null)}
+        onSuccess={handleUpdateSuccess}
+      />
 
-            {/* Display modal */}
-            <DisplayQuestionModal
-                question={displayQuestion}
-                onClose={() => setDisplayQuestion(null)}
-            />
+      {/* Display modal */}
+      <DisplayQuestionModal
+        question={displayQuestion}
+        onClose={() => setDisplayQuestion(null)}
+      />
 
-            {/* Toast notification */}
-            <Toast
-                message={toast.message}
-                type={toast.type}
-                onClose={() => setToast({ message: "", type: "success" })}
-            />
-        </div>
-    );
+      {/* Toast notification */}
+      <Toast
+        message={toast.message}
+        type={toast.type}
+        onClose={() => setToast({ message: "", type: "success" })}
+      />
+    </div>
+  );
 }

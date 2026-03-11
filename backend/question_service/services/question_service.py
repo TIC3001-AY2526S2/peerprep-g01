@@ -1,10 +1,11 @@
 from bson.objectid import ObjectId
 from datetime import datetime
-from fastapi import HTTPException
+from fastapi import HTTPException, UploadFile, File
 from configurations import collection
 from question_service.models.models import Question
 from question_service.database.serializers import all_data 
-from pymongo.errors import DuplicateKeyError
+from pymongo.errors import BulkWriteError, DuplicateKeyError
+import json
 
 async def get_all_questions_service():
     data = collection.find()
@@ -148,3 +149,43 @@ async def delete_question_service(question_id: str):
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error deleting question: {e}")
+
+
+async def mass_question_upload(file: UploadFile = File()):
+    statusObject = {
+        'status_code' : 0,
+        'message' : ''
+    }
+    if file is None:
+        statusObject['status_code'] = 500
+        statusObject['message'] = 'No JSON file detected'
+        return statusObject
+    data = await file.read()
+    questions = json.loads(data)
+    try:
+        collection.insert_many(questions,ordered=False)
+        statusObject['status_code'] = 200
+        statusObject['message'] = f'All {len(questions)} questions uploaded successfully'
+        return statusObject
+    
+    except BulkWriteError as e:
+        inserted_count = e.details.get('nInserted', 0)
+        total_count = len(questions)
+        skipped_count = total_count - inserted_count
+
+        if inserted_count == 0:
+            statusObject['status_code'] = 409
+            statusObject['message'] = f'All {total_count} Questions already exist'
+        else:
+            statusObject['status_code'] = 207
+            statusObject['message'] = f'{inserted_count} Questions uploaded, {skipped_count} Questions already exist'
+
+        return statusObject
+
+    except Exception as e:
+        statusObject['status_code'] = 404
+        statusObject['message'] = str(e)
+        return statusObject
+
+
+

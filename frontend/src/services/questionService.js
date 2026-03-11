@@ -2,8 +2,8 @@ const API_BASE = "http://localhost:8000/questions";
 
 async function handleResponse(res) {
     if (!res.ok) {
-        const text = await res.text();
-        throw new Error(text || "Request failed");
+        const data = await res.json();
+        throw new Error(data.detail || "Request failed");
     }
     return res.json();
 }
@@ -49,4 +49,12 @@ export async function deleteQuestion(id) {
         method: "DELETE",
     });
     return handleResponse(res);
+}
+
+export async function uploadQuestions(formData) {
+    const response = await fetch(`${API_BASE}/upload_questions`, {
+        method: "POST",
+        body: formData
+    });
+    return handleResponse(response);
 }

@@ -1,10 +1,11 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, UploadFile, File
 from question_service.models.models import Question
 from question_service.services.question_service import (
     get_questions_service,
     create_question_service,
     update_question_service,
-    delete_question_service
+    delete_question_service,
+    mass_question_upload
 )
 
 router = APIRouter(
@@ -38,3 +39,8 @@ async def update_question(question_id: str, updated_question: Question):
 async def delete_question(question_id: str):
     """Delete a question"""
     return await delete_question_service(question_id)
+
+@router.post("/upload_questions")
+async def upload_questions(file: UploadFile = File()):
+    # Mass upload, based on JSON
+    return await mass_question_upload(file)
