@@ -165,7 +165,7 @@ async def mass_question_upload(file: UploadFile = File()):
     try:
         collection.insert_many(questions,ordered=False)
         statusObject['status_code'] = 200
-        statusObject['message'] = f'All {inserted_count} questions uploaded successfully'
+        statusObject['message'] = f'All {len(questions)} questions uploaded successfully'
         return statusObject
     
     except BulkWriteError as e:
