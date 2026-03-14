@@ -43,35 +43,27 @@ A FastAPI-based microservice for managing coding questions with support for CRUD
    - Click "Connect" and choose "Drivers"
    - Copy the connection string
 
+
 3. Add the connection string to the `.env` file in the root directory:
 ```
    DB_CLOUD_URI=<PLACE CLOUD URI HERE>
+   Replace <db_password> with the password for database user. 
 ```
 
-4. Create and activate Python venv:
-```bash
-   python -m venv venv
-   source venv/Scripts/activate
-```
+4. Run Docker Desktop
 
-5. Install Python dependencies:
-```bash
-   pip install -r requirements.txt
-```
 
-6. Start the backend service:
+5. Start the Docker:
 ```bash
-   cd backend
-   uvicorn main:app --reload
+   docker compose up --build
 ```
 
    If the server starts successfully, you will see:
 ```
-   INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
-   INFO:     Started reloader process [xxxxx] using WatchFiles
    INFO:     Started server process [xxxxx]
    INFO:     Waiting for application startup.
    INFO:     Application startup complete.
+   INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
 ```
 
 ### Frontend Setup

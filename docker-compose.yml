@@ -1,0 +1,22 @@
+services:
+  question-service:
+    build:
+      context: ./backend/question_service
+    container_name: question_api
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend/question_service:/app
+    env_file:
+      - .env
+
+  mongodb:
+    image: mongo:latest
+    container_name: question_db
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+
+volumes:
+  mongodb_data:

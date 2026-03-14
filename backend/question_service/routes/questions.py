@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, UploadFile, File
-from question_service.models.models import Question
-from question_service.services.question_service import (
+from models.models import Question
+from services.question_service import (
     get_questions_service,
     create_question_service,
     update_question_service,

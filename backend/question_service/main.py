@@ -1,16 +1,15 @@
 import json
 import os
-from contextlib import asynccontextmanager
 from configurations import collection
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from question_service.routes import questions
+from routes import questions
 
 async def lifespan(app: FastAPI):
     # This block runs on STARTUP
     if collection.count_documents({}) == 0:
         print("[*] Populating database from questions.json...")
-        json_path = os.path.join(os.path.dirname(__file__), "question_service/database", "questions.json")
+        json_path = os.path.join(os.path.dirname(__file__), "database", "questions.json")
         try:
             with open(json_path, "r") as file:
                 data = json.load(file)
