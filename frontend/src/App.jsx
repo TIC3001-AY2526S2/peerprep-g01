@@ -1,13 +1,14 @@
 import { Routes, Route, Navigate } from "react-router-dom";
+import { AuthProvider, useAuth } from "./components/LoginForm";
 import LoginForm from "./components/LoginForm";
 import QuestionManager from "./components/QuestionManager";
 
 function PrivateRoute({ children }) {
-  const token = sessionStorage.getItem("token");
+  const { token } = useAuth();
   return token ? children : <Navigate to="/" replace />;
 }
 
-export default function App() {
+function AppRoutes() {
   return (
     <Routes>
       <Route path="/" element={<LoginForm />} />
@@ -20,5 +21,13 @@ export default function App() {
         }
       />
     </Routes>
+  );
+}
+
+export default function App() {
+  return (
+    <AuthProvider>
+      <AppRoutes />
+    </AuthProvider>
   );
 }

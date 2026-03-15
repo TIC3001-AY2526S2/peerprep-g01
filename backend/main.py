@@ -18,7 +18,7 @@ load_dotenv()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # ── Questions: seed from JSON if collection is empty ─────────────────
+    # Questions: seed from JSON if collection is empty 
     if collection.count_documents({}) == 0:
         print("[*] Populating database from questions.json...")
         json_path = os.path.join(os.path.dirname(__file__), "question_service/database", "questions.json")
@@ -30,7 +30,7 @@ async def lifespan(app: FastAPI):
         except Exception as e:
             print(f"[!] Error loading JSON: {e}")
 
-    # ── Users: ensure indexes on startup ─────────────────────────────────
+    # Users: ensure indexes on startup 
     try:
         await users_collection.create_index("email", unique=True)
         await users_collection.create_index("username", unique=True)
