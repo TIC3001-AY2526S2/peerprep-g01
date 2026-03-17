@@ -337,7 +337,7 @@ function LoginPage({ onSwitch }) {
     <div className="layout">
       <div className="card fade-in">
         <div className="logo">
-          <span className="logo-dot" /> UserService
+          <span className="logo-dot" /> PeerPrep
         </div>
         <h1>Welcome back</h1>
         <p className="subtitle">Sign in to your account to continue</p>
@@ -427,7 +427,7 @@ function RegisterPage({ onSwitch }) {
     <div className="layout">
       <div className="card fade-in">
         <div className="logo">
-          <span className="logo-dot" /> UserService
+          <span className="logo-dot" /> PeerPrep
         </div>
         <h1>Create account</h1>
         <p className="subtitle">Join to get started</p>
@@ -509,7 +509,7 @@ function ProfilePage() {
     <div className="layout">
       <div className="card fade-in" style={{ maxWidth: 460 }}>
         <div className="logo">
-          <span className="logo-dot" /> UserService
+          <span className="logo-dot" /> PeerPrep
         </div>
 
         {loading && <div className="alert alert-success">Loading profile…</div>}

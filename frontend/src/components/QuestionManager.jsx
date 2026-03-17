@@ -11,7 +11,7 @@ import {
   deleteUser,
 } from "../services/userService";
 
-// ── User Management Table (admin only) ───────────────────────────────────────
+// User Management Table (admin only)
 function UserManager({ showToast }) {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -108,7 +108,7 @@ function UserManager({ showToast }) {
   );
 }
 
-// ── Question Manager ──────────────────────────────────────────────────────────
+// Question Manager
 export default function QuestionManager() {
   const { user } = useAuth();
   const isAdmin = user?.isAdmin ?? false;
