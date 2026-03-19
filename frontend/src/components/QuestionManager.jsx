@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useAuth } from "./LoginForm";
+import { useAuth } from "./auth/AuthContext";
 import QuestionForm from "./QuestionForm";
 import QuestionList from "./QuestionList";
 import EditQuestionModal from "./EditQuestionModal";
