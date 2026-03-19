@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "./components/auth/AuthContext";
 import LoginForm from "./components/LoginForm";
 import QuestionManager from "./components/QuestionManager";
+import ProfilePage from "./components/ProfilePage";
 
 function PrivateRoute({ children }) {
   const { token } = useAuth();
@@ -17,6 +18,14 @@ function AppRoutes() {
         element={
           <PrivateRoute>
             <QuestionManager />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/profile"
+        element={
+          <PrivateRoute>
+            <ProfilePage />
           </PrivateRoute>
         }
       />
