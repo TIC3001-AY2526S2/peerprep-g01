@@ -580,10 +580,11 @@ function InnerApp() {
   const [page, setPage] = useState("login");
 
   // Redirect to /questions once authenticated
-  if (user) {
-    navigate("/questions", { replace: true });
-    return null;
-  }
+  useEffect(() => {
+    if (user) {
+      navigate("/questions", { replace: true });
+    }
+  }, [user]);
 
   return page === "login" ? (
     <LoginPage onSwitch={() => setPage("register")} />
