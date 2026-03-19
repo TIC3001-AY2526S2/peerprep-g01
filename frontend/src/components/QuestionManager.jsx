@@ -5,6 +5,7 @@ import QuestionList from "./QuestionList";
 import EditQuestionModal from "./EditQuestionModal";
 import DisplayQuestionModal from "./DisplayQuestionModal";
 import Toast from "./Toast";
+import Logout from "./Logout";
 import {
   getAllUsers,
   updateUserPrivilege,
@@ -147,7 +148,8 @@ export default function QuestionManager() {
 
   return (
     <div className="app-container">
-      <h1>PeerPrep Question Manager</h1>
+      <h1>PeerPrep</h1>
+      <Logout />
 
       {/* Tab switcher — Users tab only visible to admins */}
       <div className="tab-switcher">

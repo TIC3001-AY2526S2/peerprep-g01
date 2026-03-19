@@ -20,6 +20,15 @@ function AppRoutes() {
           </PrivateRoute>
         }
       />
+      {/* Catch-all: redirect unknown routes based on auth state */}
+      <Route
+        path="*"
+        element={
+          <PrivateRoute>
+            <Navigate to="/questions" replace />
+          </PrivateRoute>
+        }
+      />
     </Routes>
   );
 }
