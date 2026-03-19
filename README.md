@@ -1,4 +1,5 @@
 [![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-22041afd0340ce965d47ae6ef1cefeee28c7c493a6346c4f15d667ab976d596c.svg)](https://classroom.github.com/a/vHiHb8vh)
+
 # TIC3001/TCX3225 Project (PeerPrep) - AY2526S2
 
 ## Group: G01
@@ -10,12 +11,14 @@ A FastAPI-based microservice for managing coding questions with support for CRUD
 ## Tech Stack
 
 ### Backend
+
 - **Framework**: FastAPI
 - **Database**: MongoDB Atlas
 - **Runtime**: Python 3.13
 - **Server**: Uvicorn
 
 ### Frontend
+
 - **Framework**: React
 - **Build Tool**: Vite
 - **Styling**: CSS with custom design system
@@ -33,6 +36,7 @@ A FastAPI-based microservice for managing coding questions with support for CRUD
 ### Backend Setup
 
 1. Create a copy of the `.env.sample` file (in root) and name it `.env` (in root):
+
 ```bash
    cp .env.sample .env
 ```
@@ -44,28 +48,38 @@ A FastAPI-based microservice for managing coding questions with support for CRUD
    - Copy the connection string
 
 3. Add the connection string to the `.env` file in the root directory:
+
 ```
    DB_CLOUD_URI=<PLACE CLOUD URI HERE>
 ```
 
 4. Create and activate Python venv:
+
 ```bash
    python -m venv venv
    source venv/Scripts/activate
 ```
 
 5. Install Python dependencies:
+
 ```bash
    pip install -r requirements.txt
 ```
 
-6. Start the backend service:
+6.  Seeds an admin user into MongoDB.
+    """
+    cd backend
+    python seed_admin.py
+    """
+
+7.  Start the backend service:
+
 ```bash
-   cd backend
    uvicorn main:app --reload
 ```
 
-   If the server starts successfully, you will see:
+If the server starts successfully, you will see:
+
 ```
    INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
    INFO:     Started reloader process [xxxxx] using WatchFiles
@@ -77,21 +91,25 @@ A FastAPI-based microservice for managing coding questions with support for CRUD
 ### Frontend Setup
 
 1. Open a new terminal and navigate to the `frontend` directory:
+
 ```bash
    cd frontend
 ```
 
 2. Install Node.js dependencies:
+
 ```bash
    npm install
 ```
 
 3. Start the development server:
+
 ```bash
    npm run dev
 ```
 
-   The frontend will start on:
+The frontend will start on:
+
 ```
    Local: http://localhost:5173
 ```
@@ -104,27 +122,27 @@ A FastAPI-based microservice for managing coding questions with support for CRUD
 
 ## Environment Variables
 
-| Variable | Description | Example |
-|----------|-------------|---------|
+| Variable       | Description                     | Example                                          |
+| -------------- | ------------------------------- | ------------------------------------------------ |
 | `DB_CLOUD_URI` | MongoDB Atlas connection string | `mongodb+srv://user:pass@cluster.mongodb.net/db` |
-
 
 ## Features in Detail
 
 ### Question Management
+
 - **Create**: Add new coding questions with title, description, categories, and complexity
 - **Read**: View questions with pagination and search
 - **Update**: Edit existing questions via modal interface
 - **Delete**: Remove questions with confirmation
 
 ### UI Features
+
 - **Search**: Real-time search by question title
 - **Pagination**: Navigate through questions 5 at a time
 - **Complexity Badges**: Color-coded indicators (Green/Yellow/Red)
 - **Category Tags**: Multiple categories per question
 - **Modal Views**: Detailed question display and edit forms
 - **Toast Notifications**: Success/error feedback for all operations
-
 
 ## Notes
 
