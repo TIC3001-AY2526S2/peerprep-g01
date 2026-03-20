@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends
 
-from user_service.controller.auth_controller import handle_login, handle_verify_token
-from user_service.middleware.basic_access_control import verify_access_token
-from user_service.models import LoginRequest
+from controller.auth_controller import handle_login, handle_verify_token
+from middleware.basic_access_control import verify_access_token
+from models import LoginRequest
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 

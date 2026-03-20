@@ -4,7 +4,7 @@ from bson import ObjectId
 from motor.motor_asyncio import AsyncIOMotorClient
 from dotenv import load_dotenv
 
-from user_service.model.user_model import COLLECTION_NAME, new_user_doc
+from model.user_model import COLLECTION_NAME, new_user_doc
 
 load_dotenv()
 

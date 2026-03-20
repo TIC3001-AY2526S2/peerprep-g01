@@ -7,15 +7,12 @@ load_dotenv()
 uri = os.getenv("DB_CLOUD_URI")
 if not uri:
     raise ValueError("DB_CLOUD_URI not set in .env file")
-print (f'[*] URI - {uri}')
 
-# Create a new client and connect to the server
 client = MongoClient(uri, server_api=ServerApi('1'))
 
-# Select database and collection
-db = client.questions_db
-collection = db["questions_data"]
+# Separate Database for Users
+db = client.users_db
+collection = db["users_data"]
 
-# Ensure "title" is unique
-collection.create_index("title", unique=True)
-
+# The user service doesn't need the "title" index,
+# it handles email/username indexes in main.py

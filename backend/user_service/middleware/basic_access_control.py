@@ -5,7 +5,7 @@ from bson import ObjectId
 from fastapi import Depends, Header, HTTPException, status
 from jose import JWTError, jwt
 
-from user_service.model.repository import find_user_by_id
+from model.repository import find_user_by_id
 
 
 async def verify_access_token(authorization: Optional[str] = Header(None)) -> dict:

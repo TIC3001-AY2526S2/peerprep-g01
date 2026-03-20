@@ -2,7 +2,7 @@ import bcrypt
 from bson import ObjectId
 from fastapi import HTTPException, status
 
-from user_service.model.repository import (
+from model.repository import (
     create_user,
     delete_user_by_id,
     find_all_users,
