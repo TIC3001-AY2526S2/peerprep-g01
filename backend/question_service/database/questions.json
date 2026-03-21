@@ -1,0 +1,174 @@
+[
+    {
+        "title": "Reverse a String",
+        "description": "Write a function that reverses a string. The input string is given as an array of characters s. You must do this by modifying the input array in-place with O(1) extra memory.",
+        "category": [
+            "Strings",
+            "Algorithms"
+        ],
+        "complexity": "Easy"
+    },
+    {
+        "title": "Linked List Cycle Detection",
+        "description": "Implement a function to detect if a linked list contains a cycle.",
+        "category": [
+            "Data Structures",
+            "Algorithms"
+        ],
+        "complexity": "Easy"
+    },
+    {
+        "title": "Roman to Integer",
+        "description": "Given a roman numeral, convert it to an integer.",
+        "category": [
+            "Algorithms"
+        ],
+        "complexity": "Easy"
+    },
+    {
+        "title": "Add Binary",
+        "description": "Given two binary strings a and b, return their sum as a binary string.",
+        "category": [
+            "Bit Manipulation",
+            "Algorithms"
+        ],
+        "complexity": "Easy"
+    },
+    {
+        "title": "Fibonacci Number",
+        "description": "Calculate F(n), where F(n) = F(n-1) + F(n-2) for n > 1, with F(0)=0 and F(1)=1.",
+        "category": [
+            "Recursion",
+            "Algorithms"
+        ],
+        "complexity": "Easy"
+    },
+    {
+        "title": "Implement Stack using Queues",
+        "description": "Implement a last-in-first-out (LIFO) stack using only two queues. Support push, top, pop, and empty.",
+        "category": [
+            "Data Structures"
+        ],
+        "complexity": "Easy"
+    },
+    {
+        "title": "Combine Two Tables",
+        "description": "SQL: Report the first name, last name, city, and state of each person. If the address is not present, report null.",
+        "category": [
+            "Databases"
+        ],
+        "complexity": "Easy"
+    },
+    {
+        "title": "Repeated DNA Sequences",
+        "description": "Return all the 10-letter-long sequences (substrings) that occur more than once in a DNA molecule.",
+        "category": [
+            "Algorithms",
+            "Bit Manipulation"
+        ],
+        "complexity": "Medium"
+    },
+    {
+        "title": "Course Schedule",
+        "description": "Given prerequisites, determine if it is possible to finish all courses without a circular dependency.",
+        "category": [
+            "Data Structures",
+            "Algorithms"
+        ],
+        "complexity": "Medium"
+    },
+    {
+        "title": "LRU Cache Design",
+        "description": "Design and implement a data structure for Least Recently Used (LRU) cache.",
+        "category": [
+            "Data Structures"
+        ],
+        "complexity": "Medium"
+    },
+    {
+        "title": "Longest Common Subsequence",
+        "description": "Given two strings, return the length of their longest common subsequence.",
+        "category": [
+            "Strings",
+            "Algorithms"
+        ],
+        "complexity": "Medium"
+    },
+    {
+        "title": "Rotate Image",
+        "description": "Rotate an n x n 2D matrix representing an image by 90 degrees clockwise in-place.",
+        "category": [
+            "Arrays",
+            "Algorithms"
+        ],
+        "complexity": "Medium"
+    },
+    {
+        "title": "Airplane Seat Assignment Probability",
+        "description": "Return the probability that the nth person gets their own seat when the first passenger picks randomly.",
+        "category": [
+            "Brainteaser"
+        ],
+        "complexity": "Medium"
+    },
+    {
+        "title": "Validate Binary Search Tree",
+        "description": "Given the root of a binary tree, determine if it is a valid binary search tree (BST).",
+        "category": [
+            "Data Structures",
+            "Algorithms"
+        ],
+        "complexity": "Medium"
+    },
+    {
+        "title": "Sliding Window Maximum",
+        "description": "Return the max sliding window for an array of integers nums with a window of size k.",
+        "category": [
+            "Arrays",
+            "Algorithms"
+        ],
+        "complexity": "Hard"
+    },
+    {
+        "title": "N-Queen Problem",
+        "description": "Place n queens on an n x n chessboard such that no two queens attack each other. Return all distinct solutions.",
+        "category": [
+            "Algorithms"
+        ],
+        "complexity": "Hard"
+    },
+    {
+        "title": "Serialize and Deserialize a Binary Tree",
+        "description": "Design an algorithm to convert a binary tree into a string and back to the original tree structure.",
+        "category": [
+            "Data Structures",
+            "Algorithms"
+        ],
+        "complexity": "Hard"
+    },
+    {
+        "title": "Wildcard Matching",
+        "description": "Implement wildcard pattern matching with support for '?' and '*' covering the entire input string.",
+        "category": [
+            "Strings",
+            "Algorithms"
+        ],
+        "complexity": "Hard"
+    },
+    {
+        "title": "Chalkboard XOR Game",
+        "description": "Determine if Alice wins the XOR game assuming optimal play by both players.",
+        "category": [
+            "Brainteaser"
+        ],
+        "complexity": "Hard"
+    },
+    {
+        "title": "Trips and Users",
+        "description": "Calculate the cancellation rate of requests with unbanned users each day between 2013-10-01 and 2013-10-03.",
+        "category": [
+            "Databases"
+        ],
+        "complexity": "Hard"
+    }
+]
