@@ -1,7 +1,5 @@
-# Use a slim Python image to keep the build light
 FROM python:3.11-slim
 
-# Prevent Python from generating .pyc files and enable real-time logging
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 

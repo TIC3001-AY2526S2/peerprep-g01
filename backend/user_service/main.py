@@ -1,11 +1,8 @@
-import os
 from contextlib import asynccontextmanager
 from dotenv import load_dotenv
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-
-# Note: Ensure your import paths are updated relative to this file
 from routes.auth_routes import router as auth_router
 from routes.user_routes import router as user_router
 from model.repository import users_collection
@@ -13,7 +10,7 @@ from model.repository import users_collection
 load_dotenv()
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):
+async def lifespan(_app: FastAPI):
     # Users: ensure indexes on startup
     try:
         await users_collection.create_index("email", unique=True)
@@ -32,7 +29,7 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["GET", "POST", "DELETE", "PUT", "PATCH"],
     allow_headers=["Origin", "X-Requested-With", "Content-Type", "Accept", "Authorization"],

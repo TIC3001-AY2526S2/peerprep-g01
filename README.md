@@ -103,8 +103,9 @@ The frontend will start on:
 ### Accessing the Application
 
 - **Frontend UI**: http://localhost:5173
-- **Backend API**: http://localhost:8000
-- **API Documentation (Swagger UI)**: http://localhost:8000/docs
+- **User Service API**: http://localhost:3000/docs
+- **Question Service API**: http://localhost:3001/docs
+
 
 ## Environment Variables
 
