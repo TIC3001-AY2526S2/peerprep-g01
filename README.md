@@ -47,45 +47,31 @@ A FastAPI-based microservice for managing coding questions with support for CRUD
    - Click "Connect" and choose "Drivers"
    - Copy the connection string
 
+
 3. Add the connection string to the `.env` file in the root directory:
 
 ```
    DB_CLOUD_URI=<PLACE CLOUD URI HERE>
 ```
 
-4. Create and activate Python venv:
+4. Run Docker Desktop
+
+
+
+5. Start the backend service:
 
 ```bash
-   python -m venv venv
-   source venv/Scripts/activate
-```
-
-5. Install Python dependencies:
-
-```bash
-   pip install -r requirements.txt
-```
-
-6.  Seeds an admin user into MongoDB.
-    """
-    cd backend
-    python seed_admin.py
-    """
-
-7.  Start the backend service:
-
-```bash
-   uvicorn main:app --reload
+   docker-compose up --build
 ```
 
 If the server starts successfully, you will see:
 
 ```
-   INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
-   INFO:     Started reloader process [xxxxx] using WatchFiles
-   INFO:     Started server process [xxxxx]
-   INFO:     Waiting for application startup.
-   INFO:     Application startup complete.
+user-service      | INFO:     Application startup complete.
+user-service      | MongoDB user indexes ensured.
+user-service      | INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+question-service  | INFO:     Application startup complete.
+question-service  | INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
 ```
 
 ### Frontend Setup

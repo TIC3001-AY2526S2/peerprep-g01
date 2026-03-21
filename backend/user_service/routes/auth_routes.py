@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 
 from controller.auth_controller import handle_login, handle_verify_token
 from middleware.basic_access_control import verify_access_token, verify_is_admin
-from ..models import LoginRequest
+from models import LoginRequest
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
