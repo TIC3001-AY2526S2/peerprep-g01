@@ -1,16 +1,14 @@
-from fastapi import APIRouter, HTTPException, UploadFile, File, Depends
-from question_service.models.models import Question
-from question_service.services.question_service import (
+from fastapi import APIRouter, UploadFile, File, Depends
+from models.models import Question
+from auth_check import verify_access_token,verify_is_admin
+from services.question_service import (
     get_questions_service,
     create_question_service,
     update_question_service,
     delete_question_service,
     mass_question_upload
 )
-from user_service.middleware.basic_access_control import (
-    verify_access_token,
-    verify_is_admin,
-)
+
 
 router = APIRouter(
     prefix="/questions",

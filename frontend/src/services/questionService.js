@@ -1,4 +1,4 @@
-const API_BASE = "http://localhost:8000/questions";
+const API_BASE = "http://localhost:3001/questions";
 
 async function handleResponse(res) {
   if (!res.ok) {
@@ -19,7 +19,7 @@ function authHeaders() {
 }
 
 export async function getQuestions(page = 1, limit = 10, search = "") {
-  let url = `http://localhost:8000/questions?page=${page}&limit=${limit}`;
+  let url = `${API_BASE}/?page=${page}&limit=${limit}`;
 
   if (search) url += `&search=${encodeURIComponent(search)}`;
 

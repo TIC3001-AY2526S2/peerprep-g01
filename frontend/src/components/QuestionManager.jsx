@@ -49,7 +49,12 @@ export default function QuestionManager() {
       </div>
 
       {/* Tab content */}
-      {activeTab === "questions" && <QuestionsTab isAdmin={isAdmin} />}
+      {activeTab === "questions" && (
+          <QuestionsTab
+          isAdmin={isAdmin}
+          showToast={showToast}
+          />
+      )}
       {activeTab === "users" && isAdmin && (
         <UsersTab
           showToast={showToast}

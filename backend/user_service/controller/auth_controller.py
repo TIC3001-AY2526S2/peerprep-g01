@@ -5,8 +5,8 @@ import bcrypt
 from jose import jwt, JWTError
 from fastapi import HTTPException, status
 
-from user_service.model.repository import find_user_by_email
-from user_service.controller.user_controller import format_user_response
+from model.repository import find_user_by_email
+from controller.user_controller import format_user_response
 
 
 async def handle_login(email: str, password: str) -> dict:

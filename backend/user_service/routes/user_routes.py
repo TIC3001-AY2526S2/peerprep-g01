@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends
 
-from user_service.controller.user_controller import (
+from controller.user_controller import (
     create_user_handler,
     delete_user_handler,
     get_all_users_handler,
@@ -8,12 +8,12 @@ from user_service.controller.user_controller import (
     update_user_handler,
     update_user_privilege_handler,
 )
-from user_service.middleware.basic_access_control import (
+from middleware.basic_access_control import (
     verify_access_token,
     verify_is_admin,
     verify_is_owner_or_admin,
 )
-from user_service.models import RegisterRequest, UpdateUserRequest, UpdatePrivilegeRequest
+from models import RegisterRequest, UpdateUserRequest, UpdatePrivilegeRequest
 
 router = APIRouter(prefix="/users", tags=["users"])
 

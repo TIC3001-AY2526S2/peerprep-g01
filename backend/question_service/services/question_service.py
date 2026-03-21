@@ -2,8 +2,8 @@ from bson.objectid import ObjectId
 from datetime import datetime
 from fastapi import HTTPException, UploadFile, File
 from configurations import collection
-from question_service.models.models import Question
-from question_service.database.serializers import all_data 
+from models.models import Question
+from database.serializers import all_data
 from pymongo.errors import BulkWriteError, DuplicateKeyError
 from pydantic import ValidationError
 import json
