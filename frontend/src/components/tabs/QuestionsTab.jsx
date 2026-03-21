@@ -4,13 +4,10 @@ import QuestionList from "../QuestionList";
 import EditQuestionModal from "../EditQuestionModal";
 import DisplayQuestionModal from "../DisplayQuestionModal";
 
-export default function QuestionsTab({ isAdmin }) {
+export default function QuestionsTab({ isAdmin, showToast }) {
   const [displayQuestion, setDisplayQuestion] = useState(null);
   const [editingQuestion, setEditingQuestion] = useState(null);
   const [refresh, setRefresh] = useState(false);
-  const [toast, setToast] = useState({ message: "", type: "success" });
-
-  const showToast = (message, type = "success") => setToast({ message, type });
 
   const handleCreateSuccess = (message = "Question created successfully!", type = "success") => {
     setRefresh((prev) => !prev);

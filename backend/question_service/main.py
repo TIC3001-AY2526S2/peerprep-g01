@@ -1,6 +1,6 @@
 import json
 import os
-from fastapi import FastAPI, Request, HTTPException, Header
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 from configurations import collection
@@ -8,10 +8,10 @@ from routes import questions
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):
+async def lifespan(_app: FastAPI):
     # Questions: seed from JSON if collection is empty 
     if collection.count_documents({}) == 0:
-        json_path = os.path.join(os.path.dirname(__file__), "question_service/database", "questions.json")
+        json_path = os.path.join(os.path.dirname(__file__), "database", "questions.json")
         try:
             with open(json_path, "r") as file:
                 data = json.load(file)

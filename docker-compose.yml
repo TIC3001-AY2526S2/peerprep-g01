@@ -20,4 +20,5 @@ services:
       - user-service
     environment:
       # This overrides the local URL so they can talk inside Docker
-      - USER_SERVICE_URL=http://user-service:8000
+      - USER_SERVICE_VERIFY_ADMIN_URL=http://user-service:8000/auth/verify-admin
+      - USER_SERVICE_VERIFY_TOKEN_URL=http://user-service:8000/auth/verify-token
