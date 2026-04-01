@@ -59,7 +59,7 @@ export default function QuestionManager() {
             {activeTab === "matching" && (
                 <MatchingTab
                     showToast={showToast}
-                    currentUser={user}
+                    currentUser={user.id}
                     saveAuth={saveAuth}
                 />
             )}

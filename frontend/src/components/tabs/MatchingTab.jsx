@@ -1,10 +1,8 @@
 import { useState, useEffect } from "react";
-import { useAuth } from "../auth/AuthContext";
-import { verifyToken } from "../../services/userService";
 import CategorySelector from "../CategorySelector";
 
 
-export default function MatchingTab({ showToast, currentUser, saveAuth }) {
+export default function MatchingTab({ showToast, currentUser }) {
 
     const [error, setError] = useState("");
 
@@ -27,9 +25,10 @@ export default function MatchingTab({ showToast, currentUser, saveAuth }) {
         }));
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = () => {
         try {
             const payload = {
+                user: currentUser,
                 category: form.category,
                 complexity: form.complexity,
             };
