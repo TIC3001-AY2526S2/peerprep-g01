@@ -23,12 +23,15 @@ export default function QuestionManager() {
             {/* Tab row */}
             <div className="tab-row">
                 <div className="tab-switcher">
-                    <button
-                        className={`tab-btn ${activeTab === "matching" ? "active" : ""}`}
-                        onClick={() => setActiveTab("matching")}
-                    >
-                        Matching
-                    </button>
+                    {!isAdmin && (
+                        <button
+                            className={`tab-btn ${activeTab === "matching" ? "active" : ""}`}
+                            onClick={() => setActiveTab("matching")}
+                        >
+                            Matching
+                        </button>
+                    )}
+
                     <button
                         className={`tab-btn ${activeTab === "questions" ? "active" : ""}`}
                         onClick={() => setActiveTab("questions")}
