@@ -13,8 +13,8 @@ export default function QuestionManager() {
 
     const [activeTab, setActiveTab] = useState("questions");
     const [toast, setToast] = useState({ message: "", type: "success" });
-
     const showToast = (message, type = "success") => setToast({ message, type });
+
 
     return (
         <div className="app-container">
@@ -59,13 +59,13 @@ export default function QuestionManager() {
             </div>
 
             {/* Tab content */}
-            {activeTab === "matching" && (
+            <div style={activeTab !== "matching" ? { display: "none" } : {}}>
                 <MatchingTab
                     showToast={showToast}
                     currentUser={user.id}
-                    saveAuth={saveAuth}
                 />
-            )}
+            </div>
+
             {activeTab === "questions" && (
                 <QuestionsTab
                     isAdmin={isAdmin}
@@ -86,6 +86,7 @@ export default function QuestionManager() {
                 type={toast.type}
                 onClose={() => setToast({ message: "", type: "success" })}
             />
+
         </div>
     );
 }

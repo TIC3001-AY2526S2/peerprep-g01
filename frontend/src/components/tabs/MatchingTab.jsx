@@ -1,100 +1,25 @@
-import { useState, useEffect } from "react";
-import CategorySelector from "../CategorySelector";
-
+import { useState } from "react";
+import DisplayMatchLoading from "../DisplayMatchLoading";
+import MatchSelector from "../MatchSelector";
 
 export default function MatchingTab({ showToast, currentUser }) {
-
     const [error, setError] = useState("");
-
-    const [form, setForm] = useState({
-        category: "",
-        complexity: "",
-    });
-
-    const handleCategorySelect = (category) => {
-        setForm((prev) => ({
-            ...prev,
-            category: category,
-        }));
-    };
-
-    const handleComplexitySelect = (complexity) => {
-        setForm((prev) => ({
-            ...prev,
-            complexity: complexity,
-        }));
-    };
-
-    const handleSubmit = () => {
-        try {
-            const payload = {
-                user: currentUser,
-                category: form.category,
-                complexity: form.complexity,
-            };
-            console.log(payload)
-            showToast("Yeay", "success"); //probably needs to get deleted
-        } catch (err) {
-            setError(err.message || "Failed to Match");
-            console.error(err);
-        }
-    };
+    const [displayLoading, setLoading] = useState(null);
+    const [payload, setPayload] = useState(null);
 
     return (
-        <div className="card">
-            <h2>Match with a Collaborator</h2>
-            {error && (
-                <div className="error">
-                    <span>{error}</span>
-                    <button
-                        className="error-close"
-                        onClick={() => setError("")}
-                        aria-label="Close error"
-                    >
-                        ×
-                    </button>
-                </div>
-            )}
-            <CategorySelector
-                selected={form.category}
-                onSelect={handleCategorySelect}
+        <>
+            <MatchSelector
+                currentUser={currentUser}
+                setPayload={setPayload}
+                setLoading={setLoading}
+                setError={setError}
+                error={error}
             />
-
-
-            <div className="complexity-section">
-                <label className="complexity-label">Complexity</label>
-                <div className="complexity-buttons">
-                    <button
-                        type="button"
-                        className={`complexity-btn complexity-easy ${form.complexity === "Easy" ? "active" : ""}`}
-                        onClick={() => handleComplexitySelect("Easy")}
-                    >
-                        Easy
-                    </button>
-                    <button
-                        type="button"
-                        className={`complexity-btn complexity-medium ${form.complexity === "Medium" ? "active" : ""}`}
-                        onClick={() => handleComplexitySelect("Medium")}
-                    >
-                        Medium
-                    </button>
-                    <button
-                        type="button"
-                        className={`complexity-btn complexity-hard ${form.complexity === "Hard" ? "active" : ""}`}
-                        onClick={() => handleComplexitySelect("Hard")}
-                    >
-                        Hard
-                    </button>
-                </div>
-            </div>
-            <button
-                type="submit"
-                onClick={() => handleSubmit()}
-                disabled={!form.complexity || !form.category}
-            >
-                Match
-            </button>
-
-        </div>
+            <DisplayMatchLoading
+                matchCriteria={payload}
+                onClose={() => setPayload(null)}
+            />
+        </>
     );
 }
