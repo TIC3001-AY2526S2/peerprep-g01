@@ -3,6 +3,7 @@ from dotenv import load_dotenv
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from fastapi.security import HTTPBearer
 from routes.auth_routes import router as auth_router
 from routes.user_routes import router as user_router
 from model.repository import users_collection
@@ -21,6 +22,8 @@ async def lifespan(_app: FastAPI):
         print(err)
         raise
     yield
+
+security = HTTPBearer()
 
 app = FastAPI(
     title="PeerPrep User Service",
