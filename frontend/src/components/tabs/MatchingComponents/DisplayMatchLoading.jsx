@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-const TIMEOUT_SECONDS = 120;
+const TIMEOUT_SECONDS = 60;
 
 export default function DisplayMatchLoading({ matchCriteria, matchResult, onClose, onRetry, onTimeout }) {
     const navigate = useNavigate();
