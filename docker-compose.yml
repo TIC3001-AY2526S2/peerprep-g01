@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   user-service:
@@ -22,3 +22,22 @@ services:
       # This overrides the local URL so they can talk inside Docker
       - USER_SERVICE_VERIFY_ADMIN_URL=http://user-service:8000/auth/verify-admin
       - USER_SERVICE_VERIFY_TOKEN_URL=http://user-service:8000/auth/verify-token
+
+  matching-service:
+    build: ./backend/matching_service
+    container_name: matching-service
+    ports:
+      - "3002:8000"
+    env_file:
+      - .env
+    depends_on:
+      - redis
+    environment:
+      - REDIS_URL=redis://redis:6379
+      - QUESTION_SERVICE_URL=http://question-service:8000
+      - USER_SERVICE_URL=http://user-service:8000
+
+  redis:
+    image: redis:7
+    container_name: redis
+    restart: unless-stopped
