@@ -8,11 +8,6 @@ from services.matcher import try_match, add_to_queue, remove_from_queue
 
 router = APIRouter()
 
-from fastapi import APIRouter, WebSocket, WebSocketDisconnect
-import json
-
-router = APIRouter()
-
 @router.websocket('/ws/match')
 async def websocket_match(websocket: WebSocket):
     await websocket.accept()
