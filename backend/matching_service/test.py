@@ -8,8 +8,8 @@ async def user(user_id):
     async with websockets.connect(uri) as ws:
         await ws.send(json.dumps({
             "user_id": user_id,
-            "category": "data_structure",
-            "complexity": "easy"
+            "category": "Algorithms",
+            "complexity": "Easy"
         }))
 
         while True:
@@ -22,8 +22,8 @@ async def another_test(user_id):
     async with websockets.connect(uri) as ws:
         await ws.send(json.dumps({
             "user_id": user_id,
-            "category": "database",
-            "complexity": "easy"
+            "category": "Algorithms",
+            "complexity": "Easy"
         }))
 
         while True:

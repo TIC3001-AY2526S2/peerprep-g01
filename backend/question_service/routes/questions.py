@@ -66,10 +66,10 @@ async def upload_questions(
     return await mass_question_upload(file)
 
 
-@router.get("/random", dependencies=[Depends(security)])
-async def get_match_question(
+@router.get("/internal/get_match_question")
+async def get_match_question_internal(
     category: str,
     complexity: str,
-    _: dict = Depends(verify_access_token),
 ):
+    """Internal endpoint for service-to-service calls, no auth required"""
     return await get_matching_question(category, complexity)

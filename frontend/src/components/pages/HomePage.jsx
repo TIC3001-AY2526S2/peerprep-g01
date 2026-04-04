@@ -1,13 +1,13 @@
 import { useState } from "react";
-import { useAuth } from "./auth/AuthContext";
-import Logout from "./Logout";
-import Toast from "./Toast";
-import QuestionsTab from "./tabs/QuestionsTab";
-import UsersTab from "./tabs/UsersTab";
-import ProfileTab from "./tabs/ProfileTab";
-import MatchingTab from "./tabs/MatchingTab";
+import { useAuth } from "../auth/AuthContext";
+import Logout from "../Logout";
+import Toast from "../Toast";
+import QuestionsTab from "../tabs/QuestionsTab";
+import UsersTab from "../tabs/UsersTab";
+import ProfileTab from "../tabs/ProfileTab";
+import MatchingTab from "../tabs/MatchingTab";
 
-export default function QuestionManager() {
+export default function HomePage() {
     const { user, saveAuth } = useAuth();
     const isAdmin = user?.isAdmin ?? false;
 
@@ -62,7 +62,7 @@ export default function QuestionManager() {
             <div style={activeTab !== "matching" ? { display: "none" } : {}}>
                 <MatchingTab
                     showToast={showToast}
-                    currentUser={user.id}
+                    currentUser={user}
                 />
             </div>
 

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import CategorySelector from "./CategorySelector";
 
-export default function MatchSelector({ currentUser, setPayload, setLoading, setError, error, showToast }) { // fixed: added missing opening brace + destructure new props
+export default function MatchSelector({ currentUser, setPayload, setLoading, setError, error, showToast }) {
     const [form, setForm] = useState({
         category: "",
         complexity: "",
@@ -23,7 +23,6 @@ export default function MatchSelector({ currentUser, setPayload, setLoading, set
                 complexity: form.complexity,
             };
             setPayload(newPayload);
-            console.log(newPayload);
             setLoading(newPayload);
         } catch (err) {
             setError(err.message || "Failed to Match");
@@ -53,7 +52,7 @@ export default function MatchSelector({ currentUser, setPayload, setLoading, set
             <div className="complexity-section">
                 <label className="complexity-label">Complexity</label>
                 <div className="complexity-buttons">
-                    {["Easy", "Medium", "Hard"].map((level) => (  // minor refactor: avoid repetition
+                    {["Easy", "Medium", "Hard"].map((level) => (
                         <button
                             key={level}
                             type="button"

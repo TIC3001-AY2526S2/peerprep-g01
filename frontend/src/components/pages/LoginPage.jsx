@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { useAuth } from "./auth/AuthContext";
-import { loginUser } from "../services/userService";
+import { useAuth } from "../auth/AuthContext";
+import { loginUser } from "../../services/userService";
 
 export default function LoginPage({ onSwitch }) {
   const { saveAuth } = useAuth();

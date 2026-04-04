@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getQuestions, deleteQuestion } from "../services/questionService";
+import { getQuestions, deleteQuestion } from "../../../services/questionService";
 
 export default function QuestionList({
   onDisplay,

@@ -1,8 +1,8 @@
 import { useState } from "react";
-import QuestionForm from "../QuestionForm";
-import QuestionList from "../QuestionList";
-import EditQuestionModal from "../EditQuestionModal";
-import DisplayQuestionModal from "../DisplayQuestionModal";
+import QuestionForm from "./QuestionComponents/QuestionForm";
+import QuestionList from "./QuestionComponents/QuestionList";
+import EditQuestionModal from "./QuestionComponents/EditQuestionModal";
+import DisplayQuestionModal from "./QuestionComponents/DisplayQuestionModal";
 
 export default function QuestionsTab({ isAdmin, showToast }) {
   const [displayQuestion, setDisplayQuestion] = useState(null);

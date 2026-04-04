@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
-import { useAuth } from "./auth/AuthContext";
-import { verifyToken, updateUser } from "../services/userService";
-import Logout from "./Logout";
+import { useAuth } from "../auth/AuthContext";
+import { verifyToken, updateUser } from "../../services/userService";
+import Logout from "../Logout";
 
 export default function ProfilePage() {
   const { user, token, saveAuth } = useAuth();
