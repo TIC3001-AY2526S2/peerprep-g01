@@ -46,7 +46,7 @@ async def main():
     print("Admin user seeded successfully!")
     print(f"  email:    {ADMIN_EMAIL}")
     print(f"  password: {ADMIN_PASSWORD}")
-    print("  ⚠️  Change this password after first login.")
+    print("Change this password after first login.")
     client.close()
 
 asyncio.run(main())

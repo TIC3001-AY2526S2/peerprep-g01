@@ -1,6 +1,5 @@
 import { useState } from "react";
-import { createQuestion } from "../services/questionService";
-import { uploadQuestions } from "../services/questionService";
+import {createQuestion, uploadQuestions} from "../../../services/questionService"
 
 export default function QuestionForm({ onSuccess }) {
   // State Management - This function is used to store the user input.

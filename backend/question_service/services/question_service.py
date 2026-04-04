@@ -211,5 +211,19 @@ async def mass_question_upload(file: UploadFile = File()):
         statusObject['message'] = str(e)
         return statusObject
 
-
+async def get_matching_question(category: str, complexity: str):
+    pipeline = [
+        {"$match": {"category": category, "complexity": complexity}},
+        {"$sample": {"size": 1}}
+    ]
+    
+    results = list(collection.aggregate(pipeline))
+    
+    if not results:
+        raise HTTPException(
+            status_code=404,
+            detail=f"No questions found for category '{category}' and complexity '{complexity}'"
+        )
+    
+    return all_data(results)
 
