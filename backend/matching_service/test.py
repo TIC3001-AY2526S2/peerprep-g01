@@ -3,7 +3,7 @@ import websockets
 import json
 
 async def user(user_id):
-    uri = "ws://localhost:8000/ws/match"
+    uri = "ws://localhost:3002/ws/match"
 
     async with websockets.connect(uri) as ws:
         await ws.send(json.dumps({
@@ -17,7 +17,7 @@ async def user(user_id):
             print(f"{user_id} received:", msg)
 
 async def another_test(user_id):
-    uri = "ws://localhost:8000/ws/match"
+    uri = "ws://localhost:3002/ws/match"
 
     async with websockets.connect(uri) as ws:
         await ws.send(json.dumps({
