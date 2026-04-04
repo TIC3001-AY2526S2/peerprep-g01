@@ -39,11 +39,11 @@ async def websocket_match(websocket: WebSocket):
 # TODO
 async def handle_match(user_id, user_data, match):
     match_id = str(uuid.uuid4())
-    topic = user_data['topic']
+    category = user_data['category']
     complexity = user_data['complexity']
     response = requests.get(
         'http://question-service:8000/questions',
-        params={'topic': topic, 'complexity': complexity}
+        params={'category': category, 'complexity': complexity}
     )
     question = response.json()
     # Send to both users 
