@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { useAuth } from "./auth/AuthContext";
-import { registerUser } from "../services/userService";
+import { useAuth } from "../auth/AuthContext";
+import { registerUser } from "../../services/userService";
 
 export default function RegisterPage({ onSwitch }) {
   const { saveAuth } = useAuth();

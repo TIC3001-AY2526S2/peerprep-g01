@@ -1,8 +1,9 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "./components/auth/AuthContext";
 import LoginForm from "./components/LoginForm";
-import QuestionManager from "./components/QuestionManager";
-import ProfilePage from "./components/ProfilePage";
+import HomePage from "./components/pages/HomePage";
+import ProfilePage from "./components/pages/ProfilePage";
+import MatchSession from "./components/pages/MatchSession";
 
 function PrivateRoute({ children }) {
   const { token } = useAuth();
@@ -14,10 +15,10 @@ function AppRoutes() {
     <Routes>
       <Route path="/" element={<LoginForm />} />
       <Route
-        path="/questions"
+        path="/homepage"
         element={
           <PrivateRoute>
-            <QuestionManager />
+            <HomePage />
           </PrivateRoute>
         }
       />
@@ -29,12 +30,20 @@ function AppRoutes() {
           </PrivateRoute>
         }
       />
+      <Route
+        path="/:matchId"
+        element={
+          <PrivateRoute>
+            <MatchSession />
+          </PrivateRoute>
+        }
+      />
       {/* Catch-all: redirect unknown routes based on auth state */}
       <Route
         path="*"
         element={
           <PrivateRoute>
-            <Navigate to="/questions" replace />
+            <Navigate to="/homepage" replace />
           </PrivateRoute>
         }
       />

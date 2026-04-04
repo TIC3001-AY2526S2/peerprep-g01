@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { updateQuestion } from "../services/questionService";
+import {updateQuestion} from "../../../services/questionService";
 
 export default function EditQuestionForm({ question, onSuccess, onClose }) {
     const [form, setForm] = useState({
