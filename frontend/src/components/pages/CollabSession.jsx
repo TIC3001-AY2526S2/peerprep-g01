@@ -12,10 +12,11 @@ export default function CollabSession() {
   const { matchId } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
-  const { question } = location.state || {};
+  const { question, matchedWith } = location.state || {};
+  const partnerName = matchedWith?.username || "Partner";
   const editorRef = useRef(null);
   const viewRef = useRef(null);
-    console.log("Current question data:", question);
+
   const debouncedEmit = useMemo(
     () =>
       debounce((id, content) => {
@@ -82,9 +83,22 @@ return (
       {/* Header Area */}
       <div className="tab-row">
         <h1 style={{ margin: 0 }}>Collaboration</h1>
-        <div className="tab-actions">
-           <span style={{ color: 'white'}}>Room: {matchId?.slice(0, 8)}</span>
-           <button className="danger" onClick={handleExit}>Exit Session</button>
+
+        <div className="tab-actions" style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+          {/* Text Stack: Room and User */}
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '2px' }}>
+            <span style={{ color: 'rgba(255, 255, 255, 0.7)', fontSize: '13px', fontFamily: 'monospace' }}>
+              ROOM: {matchId?.slice(0, 8)}
+            </span>
+            <span style={{ color: 'rgba(255, 255, 255, 0.7)', fontSize: '13px', fontFamily: 'monospace' }}>
+              Partner: {partnerName}
+            </span>
+          </div>
+
+          {/* Exit Button - Stays on the far right */}
+          <button className="danger" onClick={handleExit}>
+            Exit Session
+          </button>
         </div>
       </div>
 
