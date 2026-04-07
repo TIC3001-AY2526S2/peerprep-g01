@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>PeerPrep - Manual Sync Test</title>
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <style>
+        body { font-family: sans-serif; padding: 20px; background: #f0f2f5; }
+        .card { max-width: 600px; margin: auto; background: white; padding: 20px; border-radius: 10px; shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        textarea { width: 100%; height: 200px; margin: 10px 0; font-family: monospace; border: 1px solid #ccc; padding: 10px; box-sizing: border-box; }
+        .status-bar { display: flex; justify-content: space-between; font-size: 0.9em; margin-bottom: 10px; }
+        button { background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; width: 100%; font-weight: bold; }
+        button:hover { background: #0056b3; }
+        #log { background: #333; color: #0f0; padding: 10px; font-size: 0.8em; height: 100px; overflow-y: auto; border-radius: 5px; margin-top: 15px; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2>Collaboration Test</h2>
+
+    <div class="status-bar">
+        <span>Status: <b id="status" style="color: red;">Disconnected</b></span>
+        <span>Room: <b>room-1</b></span>
+    </div>
+
+    <textarea id="editor" placeholder="Type something here..."></textarea>
+
+    <button onclick="manualSend()">Push to Redis (Save)</button>
+
+    <div id="log"></div>
+</div>
+
+<script>
+    const socket = io("http://localhost:3003", {
+        path: "/socket.io",
+        transports: ["websocket"]
+    });
+
+    const editor = document.getElementById('editor');
+    const status = document.getElementById('status');
+    const log = document.getElementById('log');
+
+    function addLog(msg) {
+        const div = document.createElement('div');
+        div.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+        log.prepend(div);
+    }
+
+    // 1. On Connect: Join the room
+// Inside your socket.on("connect", ...)
+socket.on("connect", () => {
+    status.innerText = "Connected";
+    status.style.color = "green";
+    addLog("Connected! ID: " + socket.id);
+
+    // Step 1: Join
+    socket.emit("join_room", { roomId: "room-1" });
+
+    // Step 2: Request history after a tiny delay to ensure listeners are ready
+    setTimeout(() => {
+        socket.emit("request_history", { roomId: "room-1" });
+    }, 200);
+});
+
+    // 2. On Receive: Update the box with what Redis found
+    socket.on("code_received", (data) => {
+        addLog("⬇️ Received from Server: " + data.content);
+        // We only update if the content is different to prevent flickering
+        if (editor.value !== data.content) {
+            editor.value = data.content;
+        }
+    });
+
+    // 3. Manual Send: Only happens when YOU click the button
+function manualSend() {
+    console.log("Btn Clicked!"); // 1. Check Browser Console (F12)
+
+    if (!socket.connected) {
+        console.error("❌ Socket is NOT connected. Cannot send.");
+        return;
+    }
+
+    const content = document.getElementById('editor').value;
+    const roomId = "room-1";
+
+    console.log("⬆️ Attempting to emit 'code_update'...");
+
+    socket.emit("code_update", {
+        roomId: roomId,
+        content: content
+    });
+
+    addLog("Sent to server: " + content);
+}
+
+    socket.on("disconnect", () => {
+        status.innerText = "Disconnected";
+        status.style.color = "red";
+    });
+</script>
+
+</body>
+</html>
