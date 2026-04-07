@@ -3,7 +3,7 @@ import { AuthProvider, useAuth } from "./components/auth/AuthContext";
 import LoginForm from "./components/LoginForm";
 import HomePage from "./components/pages/HomePage";
 import ProfilePage from "./components/pages/ProfilePage";
-import MatchSession from "./components/pages/MatchSession";
+import CollabSession from "./components/pages/CollabSession";
 
 function PrivateRoute({ children }) {
   const { token } = useAuth();
@@ -34,7 +34,7 @@ function AppRoutes() {
         path="/:matchId"
         element={
           <PrivateRoute>
-            <MatchSession />
+            <CollabSession />
           </PrivateRoute>
         }
       />

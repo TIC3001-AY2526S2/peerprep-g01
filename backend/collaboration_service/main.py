@@ -1,15 +1,18 @@
 import os
+import uuid
+import json
 import redis.asyncio as aioredis
 import socketio
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
 from dotenv import load_dotenv
+from fastapi.middleware.cors import CORSMiddleware
 
 load_dotenv()
 
-# 1. Define constants/config first
 REDIS_URL = os.getenv("REDIS_URL", "redis://redis:6379")
+FRONTEND_URL = os.getenv("FRONTEND_URL", "*")
 
-# 2. CREATE the 'sio' object (This must come BEFORE the @sio.event lines)
 mgr = socketio.AsyncRedisManager(REDIS_URL)
 sio = socketio.AsyncServer(
     async_mode='asgi',
@@ -17,40 +20,93 @@ sio = socketio.AsyncServer(
     cors_allowed_origins='*'
 )
 
-# 3. Create the FastAPI app and wrap it
-app = FastAPI()
+app = FastAPI(title="PeerPrep Collaboration Service")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[FRONTEND_URL],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Wrap FastAPI with Socket.IO ASGI application
 combined_app = socketio.ASGIApp(sio, app, socketio_path="/socket.io")
 
-# 4. Create the Redis storage client
 redis_client = aioredis.from_url(REDIS_URL, decode_responses=True)
 
-# 5. NOW you can use @sio.event
+class SessionInit(BaseModel):
+    matchId: str
+    question: dict
+
+@app.post("/internal/init-session")
+async def init_session(data: SessionInit):
+    """
+    Called by the Matching Service once a match is found.
+    Initializes the room state in Redis.
+    """
+    try:
+        await redis_client.set(f"question:{data.matchId}", json.dumps(data.question), ex=86400)
+
+        exists = await redis_client.exists(f"code:{data.matchId}")
+        if not exists:
+            await redis_client.set(f"code:{data.matchId}", "// Welcome to your collaboration session!\n", ex=86400)
+
+        print(f"Session {data.matchId} initialized successfully.")
+        return {"status": "success", "matchId": data.matchId}
+    except Exception as e:
+        print(f"Error initializing session: {e}")
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+
+@app.get("/session/{matchId}")
+async def get_session(matchId: str):
+    """Fetches current session state (question and code) for frontend recovery."""
+    question = await redis_client.get(f"question:{matchId}")
+    code = await redis_client.get(f"code:{matchId}")
+    return {
+        "question": json.loads(question) if question else None,
+        "code": code or ""
+    }
+
 @sio.event
 async def connect(sid, environ):
-    print(f"✅ Connected: {sid}")
+    print(f"Client Connected: {sid}")
+
+@sio.event
+async def disconnect(sid):
+    print(f"Client Disconnected: {sid}")
 
 @sio.event
 async def join_room(sid, data):
-    room_id = data.get('roomId')
-    await sio.enter_room(sid, room_id)
-    print(f"🏠 {sid} joined {room_id}")
-    # We removed the automatic push here to prevent the race condition
+    match_id = data.get('matchId')
+    if match_id:
+        await sio.enter_room(sid, match_id)
+        print(f"User {sid} joined room: {match_id}")
+    else:
+        print(f"User {sid} tried to join without a matchId")
 
 @sio.event
 async def request_history(sid, data):
-    room_id = data.get('roomId')
-    existing_code = await redis_client.get(f"code:{room_id}")
-    if existing_code:
-        print(f"📦 Sending history to {sid}")
-        await sio.emit('code_received', {'content': existing_code}, to=sid)
+    match_id = data.get('matchId')
+    if match_id:
+        existing_code = await redis_client.get(f"code:{match_id}")
+        if existing_code:
+            print(f"Sending history to {sid} for room {match_id}")
+            await sio.emit('code_received', {'content': existing_code}, to=sid)
 
 @sio.event
 async def code_update(sid, data):
-    room_id = data.get('roomId')
+    match_id = data.get('matchId')
     content = data.get('content')
 
-    # This will tell us WHICH tab is doing the saving
-    print(f"💾 Saving code for {room_id} FROM client {sid}")
+    if match_id and content is not None:
+        await redis_client.set(f"code:{match_id}", content, ex=86400)
 
-    await redis_client.set(f"code:{room_id}", content, ex=86400)
-    await sio.emit('code_received', {'content': content}, room=room_id, skip_sid=sid)
+        # Broadcast to everyone in the room EXCEPT the sender
+        await sio.emit(
+            'code_received',
+            {'content': content},
+            room=match_id,
+            skip_sid=sid
+        )
+        print(f"Sync: Room {match_id} updated by {sid}")

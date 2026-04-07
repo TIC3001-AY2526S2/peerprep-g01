@@ -1,6 +1,7 @@
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 import uuid
 import requests
+import httpx
 
 from core.connection_manager import manager
 from services.matcher import try_match, add_to_queue, remove_from_queue
@@ -18,7 +19,6 @@ async def websocket_match(websocket: WebSocket):
             data = await websocket.receive_json()
             print('[*] websocket.py - Received:', data)
 
-            # Register user in connection manager on first message
             if user_id is None:
                 user_id = data['user']['id']
                 manager.connections[user_id] = websocket
@@ -49,7 +49,6 @@ async def websocket_match(websocket: WebSocket):
         if user_id:
             manager.disconnect(user_id)
 
-
 async def handle_match(user_id, user_data, match):
     match_id = str(uuid.uuid4())
     category = user_data['category']
@@ -62,12 +61,28 @@ async def handle_match(user_id, user_data, match):
     question_data = response.json()
     question = question_data[0] if question_data else None
 
+    try:
+        async with httpx.AsyncClient() as client:
+            collab_response = await client.post(
+                'http://collaboration-service:8000/internal/init-session',
+                json={
+                    'matchId': match_id,
+                    'question': question
+                },
+                timeout=5.0
+            )
+            collab_response.raise_for_status()
+            print(f"Collab session initialized for {match_id}")
+    except Exception as e:
+        print(f"Failed to initialize collab session: {e}")
+
     await manager.send(user_id, {
         'status': 'matched',
         'match_id': match_id,
         'matched_with': match['user'],
         'question': question
     })
+
     await manager.send(match['user']['id'], {
         'status': 'matched',
         'match_id': match_id,
