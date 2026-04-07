@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 const TIMEOUT_SECONDS = 60;
-const AUTO_NAVIGATE_DELAY = 2000; // 2 seconds to see the "Match Found" screen
+const AUTO_NAVIGATE_DELAY = 3000; // 2 seconds to see the "Match Found" screen
 
 export default function DisplayMatchLoading({ matchCriteria, matchResult, onClose, onRetry, onTimeout }) {
     const navigate = useNavigate();
@@ -83,24 +83,11 @@ export default function DisplayMatchLoading({ matchCriteria, matchResult, onClos
                             Navigating to Session...
                         </p>
                     </div>
-                    <div className="modal-actions">
-                        {/* We keep the button just in case someone is impatient, or remove it entirely */}
-                        <button onClick={() => navigate(`/${matchResult.match_id}`, {
-                            state: {
-                                matchedWith: matchResult.matched_with,
-                                question: matchResult.question,
-                                matchId: matchResult.match_id,
-                                }})
-                            }>
-                            Go Now
-                        </button>
-                    </div>
                 </div>
             </div>
         );
     }
 
-    // Timeout screen remains the same...
     if (timedOut) {
         return (
             <div className="modal-overlay">
