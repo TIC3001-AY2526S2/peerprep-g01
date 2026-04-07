@@ -1,8 +1,12 @@
 import { useParams, useLocation } from "react-router-dom";
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useMemo } from 'react'; // Added useMemo
 import { socket } from "../../services/collaborationService";
 import { EditorView, basicSetup } from 'codemirror';
-import { javascript } from '@codemirror/lang-javascript';
+import { debounce } from 'lodash';
+import { python } from "@codemirror/lang-python";
+import { Annotation } from "@codemirror/state";
+
+const ExternalUpdate = Annotation.define();
 
 export default function CollabSession() {
   const { matchId } = useParams();
@@ -11,13 +15,19 @@ export default function CollabSession() {
   const editorRef = useRef(null);
   const viewRef = useRef(null);
 
-  useEffect(() => {
-    if (!matchId) {
-      console.error("CRITICAL: matchId is missing in CollabSession");
-      return;
-    }
+  // 1. Create the stable debounced function
+  const debouncedEmit = useMemo(
+    () =>
+      debounce((id, content) => {
+        socket.emit("code_update", { matchId: id, content });
+        console.log("Debounced sync sent to Redis");
+      }, 500),
+    []
+  );
 
-    console.log("Attempting to join room:", matchId);
+  useEffect(() => {
+    if (!matchId) return;
+
     socket.connect();
     socket.emit('join_room', { matchId });
 
@@ -25,11 +35,11 @@ export default function CollabSession() {
       doc: "// Welcome to your session\n",
       extensions: [
         basicSetup,
-        javascript(),
+        python(),
         EditorView.updateListener.of((update) => {
-          if (update.docChanged) {
+          if (update.docChanged && !update.transactions.some(tr => tr.annotation(ExternalUpdate))) {
             const content = update.state.doc.toString();
-            socket.emit('code_update', { matchId, content });
+            debouncedEmit(matchId, content);
           }
         }),
       ],
@@ -39,26 +49,33 @@ export default function CollabSession() {
     viewRef.current = view;
 
     socket.on('code_received', (data) => {
-        const current = view.state.doc.toString();
-        if (data.content !== current) {
-          view.dispatch({
-            changes: { from: 0, to: current.length, insert: data.content }
+      if (viewRef.current) {
+        const current = viewRef.current.state.doc.toString();
+        // data.content or data depending on your backend structure
+        const newContent = typeof data === 'string' ? data : data.content;
+
+        if (newContent !== current) {
+          viewRef.current.dispatch({
+            changes: { from: 0, to: current.length, insert: newContent },
+            annotations: ExternalUpdate.of(true)
           });
         }
+      }
     });
 
     return () => {
       socket.off('code_received');
       view.destroy();
+      debouncedEmit.cancel();
     };
-  }, [matchId]);
+  }, [matchId, debouncedEmit]);
 
   return (
     <div style={{ padding: '20px', background: 'white', minHeight: '100vh' }}>
       <h2 style={{ color: 'black' }}>Session ID: {matchId || "NONE"}</h2>
       <div
         ref={editorRef}
-        style={{ border: '2px solid red', height: '500px', color: 'black' }}
+        style={{ border: '1px solid #ccc', height: '500px', color: 'black' }}
       />
     </div>
   );
