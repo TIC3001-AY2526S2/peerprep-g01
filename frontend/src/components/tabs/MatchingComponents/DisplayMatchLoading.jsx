@@ -2,13 +2,32 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 const TIMEOUT_SECONDS = 60;
+const AUTO_NAVIGATE_DELAY = 3000; // 2 seconds to see the "Match Found" screen
 
 export default function DisplayMatchLoading({ matchCriteria, matchResult, onClose, onRetry, onTimeout }) {
     const navigate = useNavigate();
-
     const [elapsed, setElapsed] = useState(0);
     const [timedOut, setTimedOut] = useState(false);
 
+    // --- EFFECT 1: Auto-navigation logic ---
+    useEffect(() => {
+        if (matchResult && matchResult.match_id) {
+            const timer = setTimeout(() => {
+                navigate(`/${matchResult.match_id}`, {
+                    state: {
+                        matchedWith: matchResult.matched_with,
+                        question: matchResult.question,
+                        matchId: matchResult.match_id,
+                    },
+                    replace: true // Replaces the matching screen in history
+                });
+            }, AUTO_NAVIGATE_DELAY);
+
+            return () => clearTimeout(timer);
+        }
+    }, [matchResult, navigate]);
+
+    // --- EFFECT 2: Timer logic ---
     useEffect(() => {
         setElapsed(0);
         setTimedOut(false);
@@ -27,7 +46,7 @@ export default function DisplayMatchLoading({ matchCriteria, matchResult, onClos
         }, 1000);
 
         return () => clearInterval(interval);
-    }, [matchCriteria, matchResult]);
+    }, [matchCriteria, matchResult, onTimeout]);
 
     if (!matchCriteria) return null;
 
@@ -39,7 +58,7 @@ export default function DisplayMatchLoading({ matchCriteria, matchResult, onClos
 
     const complexityClass = matchCriteria.complexity?.toLowerCase();
 
-    // Match found screen
+    // Match found screen (Now just an informative view while the user waits for auto-nav)
     if (matchResult) {
         return (
             <div className="modal-overlay">
@@ -60,24 +79,15 @@ export default function DisplayMatchLoading({ matchCriteria, matchResult, onClos
                         <div className="description-content" style={{ textAlign: "center", fontSize: "1.25rem", fontWeight: 600 }}>
                             {matchResult.matched_with?.username || "Unknown User"}
                         </div>
-                    </div>
-                    <div className="modal-actions">
-                        <button onClick={() => navigate(`/${matchResult.match_id}`, {
-                            state: {
-                                matchedWith: matchResult.matched_with,
-                                question: matchResult.question,
-                                matchId: matchResult.match_id,
-                                }})
-                            }>
-                            Next
-                        </button>
+                        <p className="section-label" style={{ marginTop: "1rem", color: "green" }}>
+                            Navigating to Session...
+                        </p>
                     </div>
                 </div>
             </div>
         );
     }
 
-    // Timeout screen
     if (timedOut) {
         return (
             <div className="modal-overlay">
@@ -89,19 +99,15 @@ export default function DisplayMatchLoading({ matchCriteria, matchResult, onClos
                         </div>
                     </div>
                     <div className="modal-actions">
-                        <button onClick={onRetry}>
-                            Retry
-                        </button>
-                        <button onClick={onClose} className="danger">
-                            Cancel
-                        </button>
+                        <button onClick={onRetry}>Retry</button>
+                        <button onClick={onClose} className="danger">Cancel</button>
                     </div>
                 </div>
             </div>
         );
     }
 
-    // Searching screen
+    // Searching screen remains the same...
     return (
         <div className="modal-overlay">
             <div className="display-modal" onClick={(e) => e.stopPropagation()}>
@@ -123,9 +129,7 @@ export default function DisplayMatchLoading({ matchCriteria, matchResult, onClos
                     </div>
                 </div>
                 <div className="modal-actions">
-                    <button onClick={onClose} className="danger">
-                        Cancel
-                    </button>
+                    <button onClick={onClose} className="danger">Cancel</button>
                 </div>
             </div>
         </div>
