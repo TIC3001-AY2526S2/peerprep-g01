@@ -39,6 +39,7 @@ export default function CollabSession() {
 
     socket.connect();
     socket.emit('join_room', { matchId });
+    socket.emit('request_history', { matchId });
 
     const view = new EditorView({
       doc: "# Start collaborating...\n",
