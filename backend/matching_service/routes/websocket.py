@@ -49,6 +49,7 @@ async def websocket_match(websocket: WebSocket):
         if user_id:
             manager.disconnect(user_id)
 
+
 async def handle_match(user_id, user_data, match):
     match_id = str(uuid.uuid4())
     category = user_data['category']
@@ -65,20 +66,45 @@ async def handle_match(user_id, user_data, match):
         question_data = response.json()
         question = question_data[0] if question_data else None
 
-    try:
-        async with httpx.AsyncClient() as client:
+    async with httpx.AsyncClient() as client:
+        try:
             collab_response = await client.post(
                 'http://collaboration-service:8000/internal/init-session',
-                json={
-                    'matchId': match_id,
-                    'question': question
-                },
+                json={'matchId': match_id, 'question': question},
                 timeout=5.0
             )
             collab_response.raise_for_status()
-            print(f"Collab session initialized for {match_id}")
-    except Exception as e:
-        print(f"Failed to initialize collab session: {e}")
+            print(f"[+] Collab session initialized for {match_id}")
+        except Exception as e:
+            print(f"[!] Failed to initialize collab session: {e}")
+
+        try:
+            await client.post(
+                'http://collaboration-service:8000/internal/save-user-session',
+                json={
+                    'userId': user_data['user']['id'],
+                    'matchId': match_id,
+                    'matchedWith': match['user'],
+                    'question': question,
+                },
+                timeout=5.0
+            )
+        except Exception as e:
+            print(f"[!] Failed to save user session for {user_data['user']['id']}: {e}")
+
+        try:
+            await client.post(
+                'http://collaboration-service:8000/internal/save-user-session',
+                json={
+                    'userId': match['user']['id'],
+                    'matchId': match_id,
+                    'matchedWith': user_data['user'],
+                    'question': question,
+                },
+                timeout=5.0
+            )
+        except Exception as e:
+            print(f"[!] Failed to save user session for {match['user']['id']}: {e}")
 
     await manager.send(user_id, {
         'status': 'matched',
