@@ -37,9 +37,6 @@ combined_app = socketio.ASGIApp(sio, app, socketio_path="/socket.io")
 
 redis_client = aioredis.from_url(REDIS_URL, decode_responses=True)
 
-
-# ── Models ───────────────────────────────────────────────────────────────────
-
 class SessionInit(BaseModel):
     matchId: str
     question: dict
@@ -59,9 +56,6 @@ class ExecuteRequest(BaseModel):
     language: str        # e.g. "python", "javascript", "java"
     version: str = "*"   # "*" means latest
     stdin: str | None = ""
-
-
-# ── REST endpoints ────────────────────────────────────────────────────────────
 
 @app.post("/internal/init-session")
 async def init_session(data: SessionInit):
@@ -246,7 +240,7 @@ async def chat_message(sid, data):
         room=match_id,
         skip_sid=sid
     )
-    print(f"[💬] Chat in room {match_id} from {data.get('sender')}: {data.get('message')}")
+    print(f"Chat in room {match_id} from {data.get('sender')}: {data.get('message')}")
 
 
 @sio.event

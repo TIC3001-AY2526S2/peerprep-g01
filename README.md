@@ -47,7 +47,6 @@ A FastAPI-based microservice for managing coding questions with support for CRUD
    - Click "Connect" and choose "Drivers"
    - Copy the connection string
 
-
 3. Add the connection string to the `.env` file in the root directory:
 
 ```
@@ -56,13 +55,15 @@ A FastAPI-based microservice for managing coding questions with support for CRUD
 
 4. Run Docker Desktop
 
-
-
 5. Start the backend service:
 
 ```bash
    docker-compose up --build
 ```
+
+6. After docker-compose up, run:
+
+powershell -ExecutionPolicy Bypass -File .\backend\scripts\install-piston-packages.ps1
 
 If the server starts successfully, you will see:
 
@@ -105,7 +106,6 @@ The frontend will start on:
 - **Frontend UI**: http://localhost:5173
 - **User Service API**: http://localhost:3000/docs
 - **Question Service API**: http://localhost:3001/docs
-
 
 ## Environment Variables
 

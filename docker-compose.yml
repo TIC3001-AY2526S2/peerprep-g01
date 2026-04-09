@@ -62,3 +62,5 @@ services:
     restart: unless-stopped
     tmpfs:
       - /piston/jobs
+    environment:
+      - PISTON_LOG_LEVEL=info
