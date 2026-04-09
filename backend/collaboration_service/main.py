@@ -1,7 +1,5 @@
 import os
 import json
-import base64
-import asyncio
 import httpx
 import redis.asyncio as aioredis
 import socketio
