@@ -213,7 +213,7 @@ async def mass_question_upload(file: UploadFile = File()):
 
 async def get_matching_question(category: str, complexity: str):
     pipeline = [
-        {"$match": {"category": category, "complexity": complexity}},
+        {"$match": {"category": {"$in": [category]}, "complexity": complexity}},
         {"$sample": {"size": 1}}
     ]
     
@@ -226,4 +226,3 @@ async def get_matching_question(category: str, complexity: str):
         )
     
     return all_data(results)
-

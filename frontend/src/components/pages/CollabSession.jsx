@@ -1,10 +1,11 @@
 import { useParams, useLocation, useNavigate } from "react-router-dom";
-import React, { useEffect, useRef, useMemo } from 'react';
+import React, { useEffect, useRef, useMemo, useState } from "react";
 import { socket } from "../../services/collaborationService";
-import { EditorView, basicSetup } from 'codemirror';
-import { debounce } from 'lodash';
+import { EditorView, basicSetup } from "codemirror";
+import { debounce } from "lodash";
 import { python } from "@codemirror/lang-python";
 import { Annotation } from "@codemirror/state";
+import { useAuth } from "../auth/AuthContext";
 
 const ExternalUpdate = Annotation.define();
 
@@ -12,34 +13,116 @@ export default function CollabSession() {
   const { matchId } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
-  const { question, matchedWith } = location.state || {};
-  const partnerName = matchedWith?.username || "Partner";
+  const { user } = useAuth();
+
+  const [sessionData, setSessionData] = useState({
+    question: location.state?.question || null,
+    matchedWith: location.state?.matchedWith || null,
+  });
+  const [loadingSession, setLoadingSession] = useState(
+    !location.state?.question,
+  );
+  const [chatMessages, setChatMessages] = useState([]);
+  const [chatInput, setChatInput] = useState("");
+  const [chatOpen, setChatOpen] = useState(true);
+  const [saveStatus, setSaveStatus] = useState("idle");
+  const [unreadCount, setUnreadCount] = useState(0);
+
   const editorRef = useRef(null);
   const viewRef = useRef(null);
+  const chatEndRef = useRef(null);
+
+  const partnerName = sessionData.matchedWith?.username || "Partner";
+  const question = sessionData.question;
+
+  useEffect(() => {
+    if (sessionData.question) return;
+
+    const COLLAB_URL =
+      import.meta.env.VITE_COLLAB_URL || "http://localhost:3003";
+    fetch(`${COLLAB_URL}/session/${matchId}`)
+      .then((r) => r.json())
+      .then((data) => {
+        setSessionData((prev) => ({
+          ...prev,
+          question: data.question || null,
+        }));
+      })
+      .catch((e) => console.error("[!] Failed to recover session:", e))
+      .finally(() => setLoadingSession(false));
+  }, [matchId, sessionData.question]);
 
   const debouncedEmit = useMemo(
     () =>
       debounce((id, content) => {
         socket.emit("code_update", { matchId: id, content });
-        console.log("Debounced sync sent to Redis");
       }, 500),
-    []
+    [],
   );
+
+  // --- Save code permanently ---
+  const handleSave = async () => {
+    if (!viewRef.current) return;
+    const content = viewRef.current.state.doc.toString();
+    setSaveStatus("saving");
+    try {
+      const COLLAB_URL =
+        import.meta.env.VITE_COLLAB_URL || "http://localhost:3003";
+      const res = await fetch(`${COLLAB_URL}/session/${matchId}/save`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content, userId: user?.id }),
+      });
+      if (!res.ok) throw new Error("Save failed");
+      setSaveStatus("saved");
+      setTimeout(() => setSaveStatus("idle"), 2500);
+    } catch {
+      setSaveStatus("error");
+      setTimeout(() => setSaveStatus("idle"), 2500);
+    }
+  };
 
   const handleExit = () => {
     if (window.confirm("Are you sure you want to leave the session?")) {
-      socket.emit('leave_room', { matchId });
+      socket.emit("leave_room", { matchId });
       socket.disconnect();
-      navigate("/");
+      navigate("/homepage");
     }
   };
+
+  const handleSendChat = () => {
+    const msg = chatInput.trim();
+    if (!msg) return;
+    socket.emit("chat_message", {
+      matchId,
+      message: msg,
+      sender: user?.username || "Me",
+      senderId: user?.id,
+    });
+    setChatMessages((prev) => [
+      ...prev,
+      { sender: "Me", message: msg, self: true },
+    ]);
+    setChatInput("");
+  };
+
+  const handleChatKeyDown = (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSendChat();
+    }
+  };
+
+  useEffect(() => {
+    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [chatMessages]);
 
   useEffect(() => {
     if (!matchId) return;
 
     socket.connect();
-    socket.emit('join_room', { matchId });
-    socket.emit('request_history', { matchId });
+    socket.emit("join_room", { matchId });
+    socket.emit("request_history", { matchId });
 
     const view = new EditorView({
       doc: "# Start collaborating...\n",
@@ -47,7 +130,10 @@ export default function CollabSession() {
         basicSetup,
         python(),
         EditorView.updateListener.of((update) => {
-          if (update.docChanged && !update.transactions.some(tr => tr.annotation(ExternalUpdate))) {
+          if (
+            update.docChanged &&
+            !update.transactions.some((tr) => tr.annotation(ExternalUpdate))
+          ) {
             const content = update.state.doc.toString();
             debouncedEmit(matchId, content);
           }
@@ -58,97 +144,415 @@ export default function CollabSession() {
 
     viewRef.current = view;
 
-    socket.on('code_received', (data) => {
+    socket.on("code_received", (data) => {
       if (viewRef.current) {
         const current = viewRef.current.state.doc.toString();
-        const newContent = typeof data === 'string' ? data : data.content;
-
+        const newContent = typeof data === "string" ? data : data.content;
         if (newContent !== current) {
           viewRef.current.dispatch({
             changes: { from: 0, to: current.length, insert: newContent },
-            annotations: ExternalUpdate.of(true)
+            annotations: ExternalUpdate.of(true),
           });
         }
       }
     });
 
+    socket.on("chat_message", (data) => {
+      setChatMessages((prev) => [
+        ...prev,
+        { sender: data.sender, message: data.message, self: false },
+      ]);
+      if (!chatOpen) setUnreadCount((n) => n + 1);
+    });
+
     return () => {
-      socket.off('code_received');
+      socket.off("code_received");
+      socket.off("chat_message");
       view.destroy();
       debouncedEmit.cancel();
     };
   }, [matchId, debouncedEmit]);
 
-return (
-    <div className="app-container">
-      {/* Header Area */}
+  useEffect(() => {
+    if (chatOpen) setUnreadCount(0);
+  }, [chatOpen]);
+
+  if (loadingSession) {
+    return (
+      <div
+        className="app-container"
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          minHeight: "60vh",
+        }}
+      >
+        <p style={{ color: "#7b8ab8", fontFamily: "monospace" }}>
+          Rejoining session...
+        </p>
+      </div>
+    );
+  }
+
+  const saveLabel = {
+    idle: "Save",
+    saving: "Saving...",
+    saved: "Saved ✓",
+    error: "Error",
+  }[saveStatus];
+  const saveCls =
+    saveStatus === "saved" ? "success" : saveStatus === "error" ? "danger" : "";
+
+  return (
+    <div
+      className="app-container"
+      style={{ display: "flex", flexDirection: "column", gap: "16px" }}
+    >
+      {/* Header */}
       <div className="tab-row">
         <h1 style={{ margin: 0 }}>Collaboration</h1>
-
-        <div className="tab-actions" style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-          {/* Text Stack: Room and User */}
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '2px' }}>
-            <span style={{ color: 'rgba(255, 255, 255, 0.7)', fontSize: '13px', fontFamily: 'monospace' }}>
+        <div
+          className="tab-actions"
+          style={{ display: "flex", alignItems: "center", gap: "16px" }}
+        >
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "flex-end",
+              gap: "2px",
+            }}
+          >
+            <span
+              style={{
+                color: "rgba(255,255,255,0.7)",
+                fontSize: "13px",
+                fontFamily: "monospace",
+              }}
+            >
               ROOM: {matchId?.slice(0, 8)}
             </span>
-            <span style={{ color: 'rgba(255, 255, 255, 0.7)', fontSize: '13px', fontFamily: 'monospace' }}>
+            <span
+              style={{
+                color: "rgba(255,255,255,0.7)",
+                fontSize: "13px",
+                fontFamily: "monospace",
+              }}
+            >
               Partner: {partnerName}
             </span>
           </div>
-
-          {/* Exit Button - Stays on the far right */}
+          <button
+            className={`btn-save ${saveCls}`}
+            onClick={handleSave}
+            disabled={saveStatus === "saving"}
+            style={saveBtnStyle(saveStatus)}
+          >
+            {saveLabel}
+          </button>
+          <button
+            onClick={() => setChatOpen((o) => !o)}
+            style={chatToggleStyle}
+          >
+            Chat{" "}
+            {unreadCount > 0 && <span style={badgeStyle}>{unreadCount}</span>}
+          </button>
           <button className="danger" onClick={handleExit}>
             Exit Session
           </button>
         </div>
       </div>
 
-      {/* Question Info Card */}
-      <div className="card">
-        <div className="display-title-row">
-          <h2 className="display-title" style={{ color: '#4a5dba', marginBottom: '0' }}>
-            {question?.title || "Coding Task"}
-          </h2>
-
-          <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-            {/* Category Tags */}
-            {question?.category && (
-              <div style={{ display: 'flex', gap: '5px' }}>
-                {/* Force it into an array just in case it's a string, then map */}
-                {[].concat(question.category).map((cat, index) => (
+      {/* Main layout: editor + optional chat panel */}
+      <div style={{ display: "flex", gap: "16px", alignItems: "flex-start" }}>
+        {/* Left column */}
+        <div
+          style={{
+            flex: 1,
+            display: "flex",
+            flexDirection: "column",
+            gap: "16px",
+            minWidth: 0,
+          }}
+        >
+          {/* Question card */}
+          <div className="card">
+            <div className="display-title-row">
+              <h2
+                className="display-title"
+                style={{ color: "#4a5dba", marginBottom: 0 }}
+              >
+                {question?.title || "Coding Task"}
+              </h2>
+              <div
+                style={{ display: "flex", gap: "10px", alignItems: "center" }}
+              >
+                {question?.category && (
+                  <div style={{ display: "flex", gap: "5px" }}>
+                    {[].concat(question.category).map((cat, i) => (
+                      <span
+                        key={i}
+                        className="category-tag"
+                        style={{
+                          background: "#4a5dba",
+                          color: "white",
+                          border: "none",
+                        }}
+                      >
+                        {cat}
+                      </span>
+                    ))}
+                  </div>
+                )}
+                {question?.complexity && (
                   <span
-                    key={index}
-                    className="category-tag"
-                    style={{ background: '#4a5dba', color: 'white', border: 'none' }}
+                    className={`complexity-badge complexity-badge-${question.complexity.toLowerCase()}`}
                   >
-                    {cat}
+                    {question.complexity}
                   </span>
-                ))}
+                )}
               </div>
-            )}
+            </div>
+            <div className="description-content">
+              {question?.description || "No description provided."}
+            </div>
+          </div>
 
-            {/* Complexity Badge */}
-            {question?.complexity && (
-              <span className={`complexity-badge complexity-badge-${question.complexity.toLowerCase()}`}>
-                {question.complexity}
+          {/* Editor */}
+          <div
+            className="card"
+            style={{
+              padding: 0,
+              overflow: "hidden",
+              border: "2px solid #e0e4f0",
+            }}
+          >
+            <div
+              style={{
+                padding: "12px 20px",
+                background: "#fafbff",
+                borderBottom: "1px solid #e0e4f0",
+                display: "flex",
+                justifyContent: "space-between",
+              }}
+            >
+              <p className="profile-key" style={{ margin: 0 }}>
+                Code Editor
+              </p>
+              <span style={{ fontSize: "12px", color: "#7b8ab8" }}>
+                Auto-sync enabled
               </span>
-            )}
+            </div>
+            <div ref={editorRef} style={{ minHeight: "450px" }} />
           </div>
         </div>
 
-        <div className="description-content">
-          {question?.description || "No description provided."}
-        </div>
-      </div>
+        {/* Chat panel */}
+        {chatOpen && (
+          <div style={chatPanelStyle}>
+            <div style={chatHeaderStyle}>
+              <span style={{ fontWeight: 600, fontSize: "14px" }}>Chat</span>
+              <button onClick={() => setChatOpen(false)} style={chatCloseStyle}>
+                ×
+              </button>
+            </div>
 
-      {/* Editor Section */}
-      <div className="card" style={{ padding: '0', overflow: 'hidden', border: '2px solid #e0e4f0' }}>
-        <div style={{ padding: '12px 20px', background: '#fafbff', borderBottom: '1px solid #e0e4f0', display: 'flex', justifyContent: 'space-between' }}>
-            <p className="profile-key" style={{ margin: 0 }}>Code Editor</p>
-            <span style={{ fontSize: '12px', color: '#7b8ab8' }}>Auto-sync enabled</span>
-        </div>
-        <div ref={editorRef} style={{ minHeight: '450px' }} />
+            <div style={chatBodyStyle}>
+              {chatMessages.length === 0 && (
+                <p
+                  style={{
+                    color: "#9ca3b8",
+                    fontSize: "12px",
+                    textAlign: "center",
+                    marginTop: "20px",
+                  }}
+                >
+                  No messages yet
+                </p>
+              )}
+              {chatMessages.map((m, i) => (
+                <div
+                  key={i}
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: m.self ? "flex-end" : "flex-start",
+                    marginBottom: "10px",
+                  }}
+                >
+                  <span
+                    style={{
+                      fontSize: "10px",
+                      color: "#9ca3b8",
+                      marginBottom: "3px",
+                    }}
+                  >
+                    {m.self ? "You" : m.sender}
+                  </span>
+                  <div style={bubbleStyle(m.self)}>{m.message}</div>
+                </div>
+              ))}
+              <div ref={chatEndRef} />
+            </div>
+
+            <div style={chatInputAreaStyle}>
+              <textarea
+                value={chatInput}
+                onChange={(e) => setChatInput(e.target.value)}
+                onKeyDown={handleChatKeyDown}
+                placeholder="Type a message... (Enter to send)"
+                rows={2}
+                style={chatTextareaStyle}
+              />
+              <button
+                onClick={handleSendChat}
+                style={chatSendStyle}
+                disabled={!chatInput.trim()}
+              >
+                Send
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
 }
+
+// --- Inline styles ---
+const saveBtnStyle = (status) => ({
+  padding: "6px 16px",
+  borderRadius: "8px",
+  border: "1.5px solid",
+  borderColor:
+    status === "saved"
+      ? "#86efac"
+      : status === "error"
+        ? "#fca5a5"
+        : "rgba(255,255,255,0.4)",
+  background:
+    status === "saved"
+      ? "rgba(34,197,94,0.15)"
+      : status === "error"
+        ? "rgba(239,68,68,0.15)"
+        : "transparent",
+  color:
+    status === "saved"
+      ? "#86efac"
+      : status === "error"
+        ? "#fca5a5"
+        : "rgba(255,255,255,0.9)",
+  fontWeight: 600,
+  fontSize: "13px",
+  cursor: "pointer",
+  transition: "all 0.2s",
+});
+
+const chatToggleStyle = {
+  padding: "6px 16px",
+  borderRadius: "8px",
+  border: "1.5px solid rgba(255,255,255,0.4)",
+  color: "rgba(255,255,255,0.9)",
+  background: "transparent",
+  fontWeight: 600,
+  fontSize: "13px",
+  cursor: "pointer",
+  position: "relative",
+  display: "flex",
+  alignItems: "center",
+  gap: "6px",
+};
+
+const badgeStyle = {
+  background: "#ef4444",
+  color: "white",
+  borderRadius: "50%",
+  width: "18px",
+  height: "18px",
+  fontSize: "10px",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  fontWeight: 700,
+};
+
+const chatPanelStyle = {
+  width: "300px",
+  flexShrink: 0,
+  background: "#fff",
+  border: "1.5px solid #e0e4f0",
+  borderRadius: "12px",
+  display: "flex",
+  flexDirection: "column",
+  height: "600px",
+  boxShadow: "0 4px 24px rgba(79,110,247,.08)",
+};
+
+const chatHeaderStyle = {
+  padding: "12px 16px",
+  borderBottom: "1px solid #e0e4f0",
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  background: "#fafbff",
+  borderRadius: "12px 12px 0 0",
+};
+
+const chatCloseStyle = {
+  background: "none",
+  border: "none",
+  fontSize: "18px",
+  cursor: "pointer",
+  color: "#9ca3b8",
+  lineHeight: 1,
+};
+
+const chatBodyStyle = {
+  flex: 1,
+  overflowY: "auto",
+  padding: "12px 16px",
+  display: "flex",
+  flexDirection: "column",
+};
+
+const chatInputAreaStyle = {
+  padding: "10px",
+  borderTop: "1px solid #e0e4f0",
+  display: "flex",
+  gap: "8px",
+  alignItems: "flex-end",
+};
+
+const chatTextareaStyle = {
+  flex: 1,
+  resize: "none",
+  border: "1.5px solid #dce3f3",
+  borderRadius: "8px",
+  padding: "8px",
+  fontSize: "13px",
+  fontFamily: "inherit",
+  outline: "none",
+};
+
+const chatSendStyle = {
+  padding: "8px 14px",
+  background: "#4f6ef7",
+  color: "white",
+  border: "none",
+  borderRadius: "8px",
+  fontWeight: 600,
+  fontSize: "13px",
+  cursor: "pointer",
+};
+
+const bubbleStyle = (self) => ({
+  background: self ? "#4f6ef7" : "#f0f4ff",
+  color: self ? "white" : "#1e293b",
+  padding: "8px 12px",
+  borderRadius: self ? "12px 12px 2px 12px" : "12px 12px 12px 2px",
+  fontSize: "13px",
+  maxWidth: "220px",
+  wordBreak: "break-word",
+  lineHeight: 1.4,
+});

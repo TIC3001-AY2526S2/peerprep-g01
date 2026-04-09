@@ -58,8 +58,12 @@ async def handle_match(user_id, user_data, match):
         'http://question-service:8000/questions/internal/get_match_question',
         params={'category': category, 'complexity': complexity}
     )
-    question_data = response.json()
-    question = question_data[0] if question_data else None
+    if response.status_code != 200:
+        print(f"[!] Question service error: {response.status_code} {response.text}")
+        question = None
+    else:
+        question_data = response.json()
+        question = question_data[0] if question_data else None
 
     try:
         async with httpx.AsyncClient() as client:
