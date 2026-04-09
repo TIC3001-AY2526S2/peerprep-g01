@@ -52,3 +52,13 @@ services:
     image: redis:7
     container_name: redis
     restart: unless-stopped
+
+  piston:
+    image: ghcr.io/engineer-man/piston
+    container_name: piston
+    privileged: true
+    ports:
+      - "2000:2000"
+    restart: unless-stopped
+    tmpfs:
+      - /piston/jobs

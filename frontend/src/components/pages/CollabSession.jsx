@@ -4,10 +4,59 @@ import { socket } from "../../services/collaborationService";
 import { EditorView, basicSetup } from "codemirror";
 import { debounce } from "lodash";
 import { python } from "@codemirror/lang-python";
+import { javascript } from "@codemirror/lang-javascript";
+import { java } from "@codemirror/lang-java";
+import { cpp } from "@codemirror/lang-cpp";
 import { Annotation } from "@codemirror/state";
 import { useAuth } from "../auth/AuthContext";
 
 const ExternalUpdate = Annotation.define();
+
+const COLLAB_URL = import.meta.env.VITE_COLLAB_URL || "http://localhost:3003";
+
+const LANGUAGES = [
+  {
+    id: 1,
+    name: "Python 3",
+    language: "python",
+    version: "3.10.0",
+    mode: "python",
+  },
+  {
+    id: 2,
+    name: "JavaScript",
+    language: "node",
+    version: "18.15.0",
+    mode: "javascript",
+  },
+  {
+    id: 3,
+    name: "TypeScript",
+    language: "typescript",
+    version: "5.0.3",
+    mode: "javascript",
+  },
+  { id: 4, name: "Java", language: "java", version: "15.0.2", mode: "java" },
+  { id: 5, name: "C++", language: "gcc", version: "10.2.0", mode: "cpp" },
+  { id: 6, name: "C", language: "gcc", version: "10.2.0", mode: "cpp" },
+  { id: 7, name: "C#", language: "mono", version: "6.12.0", mode: "java" },
+  { id: 8, name: "Go", language: "go", version: "1.16.2", mode: "cpp" },
+  { id: 9, name: "Rust", language: "rust", version: "1.50.0", mode: "cpp" },
+  { id: 10, name: "Ruby", language: "ruby", version: "3.0.1", mode: "python" },
+];
+
+const getExtension = (mode) => {
+  switch (mode) {
+    case "javascript":
+      return javascript();
+    case "java":
+      return java();
+    case "cpp":
+      return cpp();
+    default:
+      return python();
+  }
+};
 
 export default function CollabSession() {
   const { matchId } = useParams();
@@ -28,9 +77,17 @@ export default function CollabSession() {
   const [saveStatus, setSaveStatus] = useState("idle");
   const [unreadCount, setUnreadCount] = useState(0);
 
+  // Language + execution
+  const [selectedLang, setSelectedLang] = useState(LANGUAGES[0]);
+  const [stdin, setStdin] = useState("");
+  const [execResult, setExecResult] = useState(null);
+  const [running, setRunning] = useState(false);
+  const [showInput, setShowInput] = useState(false);
+
   const editorRef = useRef(null);
   const viewRef = useRef(null);
   const chatEndRef = useRef(null);
+  const langRef = useRef(LANGUAGES[0]);
 
   const partnerName = sessionData.matchedWith?.username || "Partner";
   const question = sessionData.question;
@@ -38,8 +95,6 @@ export default function CollabSession() {
   useEffect(() => {
     if (sessionData.question) return;
 
-    const COLLAB_URL =
-      import.meta.env.VITE_COLLAB_URL || "http://localhost:3003";
     fetch(`${COLLAB_URL}/session/${matchId}`)
       .then((r) => r.json())
       .then((data) => {
@@ -66,8 +121,6 @@ export default function CollabSession() {
     const content = viewRef.current.state.doc.toString();
     setSaveStatus("saving");
     try {
-      const COLLAB_URL =
-        import.meta.env.VITE_COLLAB_URL || "http://localhost:3003";
       const res = await fetch(`${COLLAB_URL}/session/${matchId}/save`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -79,6 +132,66 @@ export default function CollabSession() {
     } catch {
       setSaveStatus("error");
       setTimeout(() => setSaveStatus("idle"), 2500);
+    }
+  };
+
+  const rebuildEditor = (lang) => {
+    if (!editorRef.current) return;
+    const currentContent = viewRef.current?.state.doc.toString() || "";
+    viewRef.current?.destroy();
+    const view = new EditorView({
+      doc: currentContent,
+      extensions: [
+        basicSetup,
+        getExtension(lang.mode),
+        EditorView.updateListener.of((update) => {
+          if (
+            update.docChanged &&
+            !update.transactions.some((tr) => tr.annotation(ExternalUpdate))
+          ) {
+            debouncedEmit(matchId, update.state.doc.toString());
+          }
+        }),
+      ],
+      parent: editorRef.current,
+    });
+    viewRef.current = view;
+  };
+
+  const handleLanguageChange = (e) => {
+    const lang = LANGUAGES.find((l) => l.id === Number(e.target.value));
+    if (!lang) return;
+    setSelectedLang(lang);
+    langRef.current = lang;
+    rebuildEditor(lang);
+    socket.emit("language_change", {
+      matchId,
+      languageId: lang.id,
+      language: lang.language,
+      version: lang.version,
+    });
+  };
+
+  const handleRun = async () => {
+    if (!viewRef.current) return;
+    setRunning(true);
+    setExecResult(null);
+    try {
+      const res = await fetch(`${COLLAB_URL}/execute`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          source_code: viewRef.current.state.doc.toString(),
+          language: selectedLang.language,
+          version: selectedLang.version,
+          stdin,
+        }),
+      });
+      setExecResult(await res.json());
+    } catch (e) {
+      setExecResult({ status: "Error", stderr: e.message });
+    } finally {
+      setRunning(false);
     }
   };
 
@@ -128,7 +241,7 @@ export default function CollabSession() {
       doc: "# Start collaborating...\n",
       extensions: [
         basicSetup,
-        python(),
+        getExtension(langRef.current.mode),
         EditorView.updateListener.of((update) => {
           if (
             update.docChanged &&
@@ -165,9 +278,19 @@ export default function CollabSession() {
       if (!chatOpen) setUnreadCount((n) => n + 1);
     });
 
+    socket.on("language_change", (data) => {
+      const lang = LANGUAGES.find((l) => l.id === data.languageId);
+      if (lang) {
+        setSelectedLang(lang);
+        langRef.current = lang;
+        rebuildEditor(lang);
+      }
+    });
+
     return () => {
       socket.off("code_received");
       socket.off("chat_message");
+      socket.off("language_change");
       view.destroy();
       debouncedEmit.cancel();
     };
@@ -340,11 +463,146 @@ export default function CollabSession() {
               <p className="profile-key" style={{ margin: 0 }}>
                 Code Editor
               </p>
-              <span style={{ fontSize: "12px", color: "#7b8ab8" }}>
-                Auto-sync enabled
-              </span>
+              <div
+                style={{ display: "flex", alignItems: "center", gap: "10px" }}
+              >
+                <span style={{ fontSize: "12px", color: "#7b8ab8" }}>
+                  Auto-sync enabled
+                </span>
+                <select
+                  value={selectedLang.id}
+                  onChange={handleLanguageChange}
+                  style={langSelectStyle}
+                >
+                  {LANGUAGES.map((l) => (
+                    <option key={l.id} value={l.id}>
+                      {l.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
             <div ref={editorRef} style={{ minHeight: "450px" }} />
+          </div>
+
+          {/* Run panel */}
+          <div className="card" style={{ padding: "16px 20px" }}>
+            <div
+              style={{
+                display: "flex",
+                gap: "10px",
+                alignItems: "center",
+                flexWrap: "wrap",
+              }}
+            >
+              <button
+                onClick={handleRun}
+                disabled={running}
+                style={runBtnStyle}
+              >
+                {running ? " Running..." : "▶ Run Code"}
+              </button>
+              <button
+                onClick={() => setShowInput((s) => !s)}
+                style={stdinToggleStyle}
+              >
+                {showInput ? "Hide stdin" : "Add stdin"}
+              </button>
+              {execResult && (
+                <span
+                  style={{
+                    fontSize: "13px",
+                    fontWeight: 700,
+                    marginLeft: "auto",
+                    color:
+                      execResult.status === "Accepted"
+                        ? "#16a34a"
+                        : execResult.stderr || execResult.compile_output
+                          ? "#dc2626"
+                          : "#1e293b",
+                  }}
+                >
+                  {execResult.status}
+                  {execResult.time && (
+                    <span
+                      style={{
+                        fontWeight: 400,
+                        color: "#64748b",
+                        marginLeft: "8px",
+                      }}
+                    >
+                      {execResult.time}s
+                    </span>
+                  )}
+                  {execResult.memory && (
+                    <span
+                      style={{
+                        fontWeight: 400,
+                        color: "#64748b",
+                        marginLeft: "4px",
+                      }}
+                    >
+                      {Math.round(execResult.memory / 1024)}MB
+                    </span>
+                  )}
+                </span>
+              )}
+            </div>
+            {showInput && (
+              <textarea
+                value={stdin}
+                onChange={(e) => {
+                  setStdin(e.target.value);
+                  socket.emit("stdin_update", {
+                    matchId,
+                    stdin: e.target.value,
+                  });
+                }}
+                placeholder="stdin (optional)"
+                rows={3}
+                style={{
+                  width: "100%",
+                  marginTop: "12px",
+                  resize: "vertical",
+                  border: "1.5px solid #dce3f3",
+                  borderRadius: "8px",
+                  padding: "8px",
+                  fontSize: "13px",
+                  fontFamily: "monospace",
+                  outline: "none",
+                  boxSizing: "border-box",
+                }}
+              />
+            )}
+            {execResult && (
+              <div style={outputPanelStyle}>
+                {execResult.compile_output && (
+                  <>
+                    <p style={outputLabelStyle}>Compile Output</p>
+                    <pre style={{ ...outputPreStyle, color: "#f87171" }}>
+                      {execResult.compile_output}
+                    </pre>
+                  </>
+                )}
+                {execResult.stderr && (
+                  <>
+                    <p style={outputLabelStyle}>Stderr</p>
+                    <pre style={{ ...outputPreStyle, color: "#f87171" }}>
+                      {execResult.stderr}
+                    </pre>
+                  </>
+                )}
+                {execResult.stdout !== null &&
+                  execResult.stdout !== undefined && (
+                    <>
+                      <p style={outputLabelStyle}>Output</p>
+                      <pre style={outputPreStyle}>
+                        {execResult.stdout || "(no output)"}
+                      </pre>
+                    </>
+                  )}
+              </div>
+            )}
           </div>
         </div>
 
@@ -544,6 +802,68 @@ const chatSendStyle = {
   fontWeight: 600,
   fontSize: "13px",
   cursor: "pointer",
+};
+
+const langSelectStyle = {
+  padding: "4px 10px",
+  borderRadius: "6px",
+  border: "1.5px solid #dce3f3",
+  background: "#fff",
+  color: "#1e293b",
+  fontSize: "12px",
+  fontFamily: "inherit",
+  cursor: "pointer",
+  outline: "none",
+};
+
+const runBtnStyle = {
+  padding: "8px 20px",
+  borderRadius: "8px",
+  border: "none",
+  background: "#4a5dba",
+  color: "white",
+  fontWeight: 700,
+  fontSize: "13px",
+  cursor: "pointer",
+};
+
+const stdinToggleStyle = {
+  padding: "8px 16px",
+  borderRadius: "8px",
+  border: "1.5px solid #dce3f3",
+  background: "transparent",
+  color: "#4a5dba",
+  fontWeight: 600,
+  fontSize: "13px",
+  cursor: "pointer",
+};
+
+const outputPanelStyle = {
+  marginTop: "14px",
+  background: "#0f172a",
+  borderRadius: "8px",
+  padding: "14px 16px",
+  maxHeight: "260px",
+  overflowY: "auto",
+};
+
+const outputLabelStyle = {
+  fontSize: "10px",
+  fontWeight: 700,
+  letterSpacing: "0.06em",
+  textTransform: "uppercase",
+  color: "#64748b",
+  marginBottom: "6px",
+  marginTop: "8px",
+};
+
+const outputPreStyle = {
+  fontFamily: "monospace",
+  fontSize: "13px",
+  color: "#e2e8f0",
+  whiteSpace: "pre-wrap",
+  wordBreak: "break-all",
+  margin: 0,
 };
 
 const bubbleStyle = (self) => ({

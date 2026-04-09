@@ -14,9 +14,7 @@ load_dotenv()
 
 REDIS_URL = os.getenv("REDIS_URL", "redis://redis:6379")
 FRONTEND_URL = os.getenv("FRONTEND_URL", "*")
-JUDGE0_URL = os.getenv("JUDGE0_URL", "https://judge0-ce.p.rapidapi.com")
-JUDGE0_API_KEY = os.getenv("JUDGE0_API_KEY", "")
-JUDGE0_HOST = "judge0-ce.p.rapidapi.com"
+PISTON_URL = os.getenv("PISTON_URL", "http://piston:2000/api/v2")
 
 mgr = socketio.AsyncRedisManager(REDIS_URL)
 sio = socketio.AsyncServer(
@@ -40,6 +38,8 @@ combined_app = socketio.ASGIApp(sio, app, socketio_path="/socket.io")
 redis_client = aioredis.from_url(REDIS_URL, decode_responses=True)
 
 
+# ── Models ───────────────────────────────────────────────────────────────────
+
 class SessionInit(BaseModel):
     matchId: str
     question: dict
@@ -56,9 +56,12 @@ class UserSessionPayload(BaseModel):
 
 class ExecuteRequest(BaseModel):
     source_code: str
-    language_id: int
+    language: str        # e.g. "python", "javascript", "java"
+    version: str = "*"   # "*" means latest
     stdin: str | None = ""
 
+
+# ── REST endpoints ────────────────────────────────────────────────────────────
 
 @app.post("/internal/init-session")
 async def init_session(data: SessionInit):
@@ -146,73 +149,44 @@ async def save_code(matchId: str, data: SaveCode):
 
 @app.post("/execute")
 async def execute_code(data: ExecuteRequest):
-    """Proxy to Judge0 RapidAPI."""
+    """Proxy to Piston API — free, no key required."""
     async with httpx.AsyncClient() as client:
         try:
-            submit_res = await client.post(
-                f"{JUDGE0_URL}/submissions?base64_encoded=true&wait=false",
+            res = await client.post(
+                f"{PISTON_URL}/execute",
                 json={
-                    "source_code": base64.b64encode(data.source_code.encode()).decode(),
-                    "language_id": data.language_id,
-                    "stdin": base64.b64encode((data.stdin or "").encode()).decode(),
+                    "language": data.language,
+                    "version": data.version,
+                    "files": [{"content": data.source_code}],
+                    "stdin": data.stdin or "",
                 },
-                headers={
-                    "X-RapidAPI-Key": JUDGE0_API_KEY,
-                    "X-RapidAPI-Host": JUDGE0_HOST,
-                    "Content-Type": "application/json",
-                },
-                timeout=10.0,
+                timeout=15.0,
             )
-            print(f"[Judge0] submit status={submit_res.status_code} body={submit_res.text}")
-            submit_res.raise_for_status()
+            print(f"[Piston] status={res.status_code}")
+            res.raise_for_status()
         except Exception as e:
-            raise HTTPException(status_code=502, detail=f"Judge0 submission failed: {e}")
+            raise HTTPException(status_code=502, detail=f"Piston request failed: {e}")
 
-        token = submit_res.json().get("token")
-        if not token:
-            raise HTTPException(status_code=502, detail="No token from Judge0")
+        result = res.json()
+        run = result.get("run", {})
+        compile_stage = result.get("compile", {})
 
-        for _ in range(20):
-            await asyncio.sleep(0.5)
-            try:
-                result_res = await client.get(
-                    f"{JUDGE0_URL}/submissions/{token}?base64_encoded=true",
-                    headers={
-                        "X-RapidAPI-Key": JUDGE0_API_KEY,
-                        "X-RapidAPI-Host": JUDGE0_HOST,
-                    },
-                    timeout=5.0,
-                )
-                result = result_res.json()
-            except Exception as e:
-                raise HTTPException(status_code=502, detail=f"Judge0 polling failed: {e}")
-
-            status_id = result.get("status", {}).get("id")
-            if status_id not in (1, 2):
-                def decode(val):
-                    if not val:
-                        return None
-                    try:
-                        return base64.b64decode(val).decode("utf-8", errors="replace")
-                    except Exception:
-                        return val
-
-                return {
-                    "status": result.get("status", {}).get("description", "Unknown"),
-                    "stdout": decode(result.get("stdout")),
-                    "stderr": decode(result.get("stderr")),
-                    "compile_output": decode(result.get("compile_output")),
-                    "time": result.get("time"),
-                    "memory": result.get("memory"),
-                }
-
-        raise HTTPException(status_code=504, detail="Execution timed out")
+        return {
+            "status": "Runtime Error" if run.get("code") != 0 else "Accepted",
+            "stdout": run.get("stdout") or None,
+            "stderr": run.get("stderr") or None,
+            "compile_output": compile_stage.get("stderr") or None,
+            "time": None,
+            "memory": None,
+        }
 
 
 @app.get("/")
 async def root():
     return {"service": "Collaboration Service", "status": "online"}
 
+
+# ── Socket.IO events ──────────────────────────────────────────────────────────
 
 @sio.event
 async def connect(sid, environ):
@@ -272,7 +246,7 @@ async def chat_message(sid, data):
         room=match_id,
         skip_sid=sid
     )
-    print(f"Chat in room {match_id} from {data.get('sender')}: {data.get('message')}")
+    print(f"[💬] Chat in room {match_id} from {data.get('sender')}: {data.get('message')}")
 
 
 @sio.event
