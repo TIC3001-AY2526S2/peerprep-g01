@@ -1,16 +1,4 @@
-import React from "react";
-
-const CATEGORIES = [
-    "Algorithms",
-    "Arrays",
-    "Bit Manipulation",
-    "Brain Teasers",
-    "Databases",
-    "Data Structures",
-    "Recursions",
-    "Shortest Path",
-    "Sorting",
-];
+import { CATEGORIES } from "../../constants/categories";
 
 export default function CategorySelector({ selected, onSelect }) {
     return (
