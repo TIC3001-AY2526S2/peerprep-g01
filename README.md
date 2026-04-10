@@ -4,7 +4,7 @@
 
 ## Group: G01
 
-# Question Service
+# PeerPrep
 
 A FastAPI-based microservice for managing coding questions with support for CRUD operations, search, and pagination. Built with React frontend for a modern user interface.
 
