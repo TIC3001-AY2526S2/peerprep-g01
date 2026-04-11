@@ -11,8 +11,8 @@ if not uri:
 client = MongoClient(uri, server_api=ServerApi('1'))
 
 # Separate Database for Questions
-db = client.questions_db
-collection = db["questions_data"]
+db = client[os.environ.get("DB_NAME", "peerprep")]
+collection = db["questions"]
 
 # Keep your unique title index here
 collection.create_index("title", unique=True)
