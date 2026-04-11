@@ -1,12 +1,14 @@
 import { useState } from "react";
 import {createQuestion, uploadQuestions} from "../../../services/questionService"
+import { CATEGORIES } from "../../constants/categories";
+
 
 export default function QuestionForm({ onSuccess }) {
   // State Management - This function is used to store the user input.
   const [form, setForm] = useState({
     title: "",
     description: "",
-    category: "",
+    category: [],
     complexity: "",
   });
 
@@ -41,7 +43,7 @@ export default function QuestionForm({ onSuccess }) {
       const payload = {
         title: form.title,
         description: form.description,
-        category: form.category.split(",").map((c) => c.trim()),
+        category: form.category,
         complexity: form.complexity,
       };
       // createQuestion - declared in questionService.js
@@ -124,13 +126,26 @@ export default function QuestionForm({ onSuccess }) {
           required
         />
 
-        <input
-          name="category"
-          placeholder="Category (comma separated)"
-          value={form.category}
-          onChange={handleChange}
-          required
-        />
+        <div className="category-section">
+          <label className="complexity-label">Category *</label>
+          <div className="category-buttons">
+            {CATEGORIES.map((cat) => (
+              <button
+                key={cat}
+                type="button"
+                className={`category-btn${form.category.includes(cat) ? " active" : ""}`}
+                onClick={() => {
+                  const updated = form.category.includes(cat)
+                    ? form.category.filter((c) => c !== cat)
+                    : [...form.category, cat];
+                  setForm((prev) => ({ ...prev, category: updated }));
+                }}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
+        </div>
 
         <div className="complexity-section">
           <label className="complexity-label">Complexity *</label>

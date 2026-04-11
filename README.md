@@ -4,7 +4,7 @@
 
 ## Group: G01
 
-# Question Service
+# PeerPrep
 
 A FastAPI-based microservice for managing coding questions with support for CRUD operations, search, and pagination. Built with React frontend for a modern user interface.
 
@@ -16,12 +16,22 @@ A FastAPI-based microservice for managing coding questions with support for CRUD
 - **Database**: MongoDB Atlas
 - **Runtime**: Python 3.13
 - **Server**: Uvicorn
+- **Data Validation**: Pydantic
+- **Matching Queue, Collab Session State, Code Sync** - Redis
+- **Matching Service** - Websocket
+- **Code Execution** - Piston
 
 ### Frontend
 
 - **Framework**: React
 - **Build Tool**: Vite
 - **Styling**: CSS with custom design system
+- **Code Editor**: CodeMirror 6
+- **Real-Time Collaboration**: Socket.IO Client
+
+## Infrastructure
+- **Containerised Services** - Docker + Docker Compose
+- **Container for Collab + Matching ** - Redis 7
 
 ## Quick Start
 
@@ -47,7 +57,6 @@ A FastAPI-based microservice for managing coding questions with support for CRUD
    - Click "Connect" and choose "Drivers"
    - Copy the connection string
 
-
 3. Add the connection string to the `.env` file in the root directory:
 
 ```
@@ -56,22 +65,10 @@ A FastAPI-based microservice for managing coding questions with support for CRUD
 
 4. Run Docker Desktop
 
-
-
 5. Start the backend service:
 
 ```bash
    docker-compose up --build
-```
-
-If the server starts successfully, you will see:
-
-```
-user-service      | INFO:     Application startup complete.
-user-service      | MongoDB user indexes ensured.
-user-service      | INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
-question-service  | INFO:     Application startup complete.
-question-service  | INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
 ```
 
 ### Frontend Setup
@@ -106,36 +103,8 @@ The frontend will start on:
 - **User Service API**: http://localhost:3000/docs
 - **Question Service API**: http://localhost:3001/docs
 
-
 ## Environment Variables
 
 | Variable       | Description                     | Example                                          |
 | -------------- | ------------------------------- | ------------------------------------------------ |
 | `DB_CLOUD_URI` | MongoDB Atlas connection string | `mongodb+srv://user:pass@cluster.mongodb.net/db` |
-
-## Features in Detail
-
-### Question Management
-
-- **Create**: Add new coding questions with title, description, categories, and complexity
-- **Read**: View questions with pagination and search
-- **Update**: Edit existing questions via modal interface
-- **Delete**: Remove questions with confirmation
-
-### UI Features
-
-- **Search**: Real-time search by question title
-- **Pagination**: Navigate through questions 5 at a time
-- **Complexity Badges**: Color-coded indicators (Green/Yellow/Red)
-- **Category Tags**: Multiple categories per question
-- **Modal Views**: Detailed question display and edit forms
-- **Toast Notifications**: Success/error feedback for all operations
-
-## Notes
-
-- The backend runs on port **8000** by default
-- The frontend runs on port **5173** by default
-- CORS is configured to accept requests from `http://localhost:5173`
-- MongoDB connection requires the `.env` file in the **root directory**
-- Both backend and frontend must be running for the full application to work
-- Developed with **Python 3.13** - ensure compatibility when deploying
