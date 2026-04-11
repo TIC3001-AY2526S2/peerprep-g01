@@ -8,6 +8,15 @@ services:
       - "3000:8000"
     env_file:
       - .env
+  admin-seed:
+    build: ./backend/user_service
+    container_name: admin-seed
+    restart: "no"
+    env_file:
+      - .env
+    depends_on:
+      - user-service
+    command: python database/init_db.py
 
   question-service:
     build: ./backend/question_service
@@ -62,3 +71,26 @@ services:
     restart: unless-stopped
     tmpfs:
       - /piston/jobs
+
+  piston-init:
+    image: curlimages/curl:latest
+    container_name: piston-init
+    depends_on:
+      - piston
+    restart: "no"
+    entrypoint: >
+      sh -c "
+        echo 'Waiting for Piston...' &&
+        until curl -sf http://piston:2000/api/v2/runtimes; do sleep 3; done &&
+        echo 'Piston ready. Installing packages...' &&
+        curl -sf -X POST http://piston:2000/api/v2/packages -H 'Content-Type: application/json' -d '{\"language\":\"python\",\"version\":\"3.10.0\"}' ;
+        curl -sf -X POST http://piston:2000/api/v2/packages -H 'Content-Type: application/json' -d '{\"language\":\"node\",\"version\":\"18.15.0\"}' ;
+        curl -sf -X POST http://piston:2000/api/v2/packages -H 'Content-Type: application/json' -d '{\"language\":\"typescript\",\"version\":\"5.0.3\"}' ;
+        curl -sf -X POST http://piston:2000/api/v2/packages -H 'Content-Type: application/json' -d '{\"language\":\"java\",\"version\":\"15.0.2\"}' ;
+        curl -sf -X POST http://piston:2000/api/v2/packages -H 'Content-Type: application/json' -d '{\"language\":\"gcc\",\"version\":\"10.2.0\"}' ;
+        curl -sf -X POST http://piston:2000/api/v2/packages -H 'Content-Type: application/json' -d '{\"language\":\"mono\",\"version\":\"6.12.0\"}' ;
+        curl -sf -X POST http://piston:2000/api/v2/packages -H 'Content-Type: application/json' -d '{\"language\":\"go\",\"version\":\"1.16.2\"}' ;
+        curl -sf -X POST http://piston:2000/api/v2/packages -H 'Content-Type: application/json' -d '{\"language\":\"rust\",\"version\":\"1.50.0\"}' ;
+        curl -sf -X POST http://piston:2000/api/v2/packages -H 'Content-Type: application/json' -d '{\"language\":\"ruby\",\"version\":\"3.0.1\"}' ;
+        echo 'All packages installed.'
+      "
