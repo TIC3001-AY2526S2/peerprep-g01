@@ -4,6 +4,7 @@ import LoginForm from "./components/LoginForm";
 import HomePage from "./components/pages/HomePage";
 import ProfilePage from "./components/pages/ProfilePage";
 import CollabSession from "./components/pages/CollabSession";
+import { useState, useEffect } from "react";
 
 const COLLAB_URL = "http://localhost:3003";
 
@@ -11,8 +12,6 @@ function PrivateRoute({ children }) {
   const { token } = useAuth();
   return token ? children : <Navigate to="/" replace />;
 }
-
-import { useState, useEffect } from "react";
 
 function CollabRoute() {
   const { token, user } = useAuth();
