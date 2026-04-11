@@ -61,20 +61,6 @@ A FastAPI-based microservice for managing coding questions with support for CRUD
    docker-compose up --build
 ```
 
-6. After docker-compose up, run:
-
-powershell -ExecutionPolicy Bypass -File .\backend\scripts\install-piston-packages.ps1
-
-If the server starts successfully, you will see:
-
-```
-user-service      | INFO:     Application startup complete.
-user-service      | MongoDB user indexes ensured.
-user-service      | INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
-question-service  | INFO:     Application startup complete.
-question-service  | INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
-```
-
 ### Frontend Setup
 
 1. Open a new terminal and navigate to the `frontend` directory:
