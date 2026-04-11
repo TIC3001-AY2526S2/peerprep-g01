@@ -273,3 +273,19 @@ async def language_change(sid, data):
         room=match_id,
         skip_sid=sid
     )
+
+@sio.event
+async def cursor_update(sid, data):
+    match_id = data.get("matchId")
+    if not match_id:
+        return
+    await sio.emit(
+        "cursor_update",
+        {
+            "userId": data.get("userId"),
+            "username": data.get("username"),
+            "position": data.get("position"),  # { line, col, index }
+        },
+        room=match_id,
+        skip_sid=sid  # don't echo back to sender
+    )
