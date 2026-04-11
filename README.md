@@ -16,12 +16,22 @@ A FastAPI-based microservice for managing coding questions with support for CRUD
 - **Database**: MongoDB Atlas
 - **Runtime**: Python 3.13
 - **Server**: Uvicorn
+- **Data Validation**: Pydantic
+- **Matching Queue, Collab Session State, Code Sync** - Redis
+- **Matching Service** - Websocket
+- **Code Execution** - Piston
 
 ### Frontend
 
 - **Framework**: React
 - **Build Tool**: Vite
 - **Styling**: CSS with custom design system
+- **Code Editor**: CodeMirror 6
+- **Real-Time Collaboration**: Socket.IO Client
+
+## Infrastructure
+- **Containerised Services** - Docker + Docker Compose
+- **Container for Collab + Matching ** - Redis 7
 
 ## Quick Start
 
@@ -98,30 +108,3 @@ The frontend will start on:
 | Variable       | Description                     | Example                                          |
 | -------------- | ------------------------------- | ------------------------------------------------ |
 | `DB_CLOUD_URI` | MongoDB Atlas connection string | `mongodb+srv://user:pass@cluster.mongodb.net/db` |
-
-## Features in Detail
-
-### Question Management
-
-- **Create**: Add new coding questions with title, description, categories, and complexity
-- **Read**: View questions with pagination and search
-- **Update**: Edit existing questions via modal interface
-- **Delete**: Remove questions with confirmation
-
-### UI Features
-
-- **Search**: Real-time search by question title
-- **Pagination**: Navigate through questions 5 at a time
-- **Complexity Badges**: Color-coded indicators (Green/Yellow/Red)
-- **Category Tags**: Multiple categories per question
-- **Modal Views**: Detailed question display and edit forms
-- **Toast Notifications**: Success/error feedback for all operations
-
-## Notes
-
-- The backend runs on port **8000** by default
-- The frontend runs on port **5173** by default
-- CORS is configured to accept requests from `http://localhost:5173`
-- MongoDB connection requires the `.env` file in the **root directory**
-- Both backend and frontend must be running for the full application to work
-- Developed with **Python 3.13** - ensure compatibility when deploying
