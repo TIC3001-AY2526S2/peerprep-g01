@@ -1,6 +1,7 @@
 import os
 import json
 import httpx
+import jwt
 import redis.asyncio as aioredis
 import socketio
 from fastapi import FastAPI, HTTPException
@@ -13,6 +14,40 @@ load_dotenv()
 REDIS_URL = os.getenv("REDIS_URL", "redis://redis:6379")
 FRONTEND_URL = os.getenv("FRONTEND_URL", "*")
 PISTON_URL = os.getenv("PISTON_URL", "http://piston:2000/api/v2")
+JWT_SECRET = os.getenv("JWT_SECRET")
+JWT_ALGORITHM = "HS256"
+
+# ── JWT helper ────────────────────────────────────────────────────────────────
+ 
+def verify_token(token: str) -> str | None:
+    """Returns userId (str) if token is valid, None otherwise."""
+    try:
+        payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+        return payload.get("id")           # ← matches {"id": str(user["_id"]), ...}
+    except jwt.ExpiredSignatureError:
+        print("[!] Token expired")
+        return None
+    except jwt.InvalidTokenError:
+        print("[!] Invalid token")
+        return None
+    
+
+# ── Socket.IO membership helper ───────────────────────────────────────────────
+ 
+async def assert_member(sid: str, match_id: str) -> bool:
+    """
+    Returns True if the socket's verified user belongs to match_id.
+    Emits an 'error' event and returns False otherwise.
+    """
+    session = await sio.get_session(sid)
+    user_id = session.get("userId")
+    raw = await redis_client.get(f"user_session:{user_id}")
+    if not raw or json.loads(raw).get("matchId") != match_id:
+        await sio.emit("error", {"message": "Unauthorized"}, to=sid)
+        return False
+    return True
+
+# ── Socket.IO / FastAPI setup ─────────────────────────────────────────────────
 
 mgr = socketio.AsyncRedisManager(REDIS_URL)
 sio = socketio.AsyncServer(
@@ -35,6 +70,8 @@ combined_app = socketio.ASGIApp(sio, app, socketio_path="/socket.io")
 
 redis_client = aioredis.from_url(REDIS_URL, decode_responses=True)
 
+# ── Pydantic models ───────────────────────────────────────────────────────────
+
 class SessionInit(BaseModel):
     matchId: str
     question: dict
@@ -51,9 +88,11 @@ class UserSessionPayload(BaseModel):
 
 class ExecuteRequest(BaseModel):
     source_code: str
-    language: str        # e.g. "python", "javascript", "java"
-    version: str = "*"   # "*" means latest
+    language: str        
+    version: str = "*"  
     stdin: str | None = ""
+
+# ── REST endpoints ────────────────────────────────────────────────────────────
 
 @app.post("/internal/init-session")
 async def init_session(data: SessionInit):
@@ -181,9 +220,20 @@ async def root():
 # ── Socket.IO events ──────────────────────────────────────────────────────────
 
 @sio.event
-async def connect(sid, environ):
-    print(f"[+] Client connected: {sid}")
-
+async def connect(sid, environ, auth):
+    token = (auth or {}).get("token")
+    if not token:
+        print(f"[!] Rejected — no token: {sid}")
+        return False
+ 
+    user_id = verify_token(token)
+    if not user_id:
+        print(f"[!] Rejected — invalid/expired token: {sid}")
+        return False
+ 
+    # Stash verified identity for use in all subsequent events
+    await sio.save_session(sid, {"userId": user_id})
+    print(f"[+] Authenticated connection: {sid} -> user {user_id}")
 
 @sio.event
 async def disconnect(sid):
@@ -192,31 +242,36 @@ async def disconnect(sid):
 
 @sio.event
 async def join_room(sid, data):
-    match_id = data.get('matchId')
-    if match_id:
-        await sio.enter_room(sid, match_id)
-        print(f"[+] {sid} joined room {match_id}")
+    match_id = data.get("matchId")
+    if not match_id or not await assert_member(sid, match_id):
+        return
+    await sio.enter_room(sid, match_id)
+    session = await sio.get_session(sid)
+    print(f"[+] {session.get('userId')} joined room {match_id}")
 
 
 @sio.event
 async def request_history(sid, data):
-    match_id = data.get('matchId')
-    if match_id:
-        existing_code = await redis_client.get(f"code:{match_id}")
-        if existing_code:
-            await sio.emit('code_received', {'content': existing_code}, to=sid)
-            print(f"[+] Sent history to {sid} for room {match_id}")
+    match_id = data.get("matchId")
+    if not match_id or not await assert_member(sid, match_id):
+        return
+    existing_code = await redis_client.get(f"code:{match_id}")
+    if existing_code:
+        await sio.emit("code_received", {"content": existing_code}, to=sid)
+        print(f"[+] Sent history to {sid} for room {match_id}")
 
 
 @sio.event
 async def code_update(sid, data):
-    match_id = data.get('matchId')
-    content = data.get('content')
-    if match_id and content is not None:
+    match_id = data.get("matchId")
+    content = data.get("content")
+    if not match_id or not await assert_member(sid, match_id):
+        return
+    if content is not None:
         await redis_client.set(f"code:{match_id}", content, ex=86400)
         await sio.emit(
-            'code_received',
-            {'content': content},
+            "code_received",
+            {"content": content},
             room=match_id,
             skip_sid=sid
         )
@@ -225,15 +280,15 @@ async def code_update(sid, data):
 
 @sio.event
 async def chat_message(sid, data):
-    match_id = data.get('matchId')
-    if not match_id:
+    match_id = data.get("matchId")
+    if not match_id or not await assert_member(sid, match_id):
         return
     await sio.emit(
-        'chat_message',
+        "chat_message",
         {
-            'sender': data.get('sender', 'Anonymous'),
-            'message': data.get('message', ''),
-            'senderId': data.get('senderId'),
+            "sender": data.get("sender", "Anonymous"),
+            "message": data.get("message", ""),
+            "senderId": data.get("senderId"),
         },
         room=match_id,
         skip_sid=sid
@@ -243,16 +298,17 @@ async def chat_message(sid, data):
 
 @sio.event
 async def leave_room(sid, data):
-    match_id = data.get('matchId')
-    if match_id:
-        await sio.leave_room(sid, match_id)
-        print(f"[-] {sid} left room {match_id}")
+    match_id = data.get("matchId")
+    if not match_id or not await assert_member(sid, match_id):
+        return
+    await sio.leave_room(sid, match_id)
+    print(f"[-] {sid} left room {match_id}")
 
 
 @sio.event
 async def stdin_update(sid, data):
     match_id = data.get("matchId")
-    if not match_id:
+    if not match_id or not await assert_member(sid, match_id):
         return
     await sio.emit(
         "stdin_update",
@@ -265,7 +321,7 @@ async def stdin_update(sid, data):
 @sio.event
 async def language_change(sid, data):
     match_id = data.get("matchId")
-    if not match_id:
+    if not match_id or not await assert_member(sid, match_id):
         return
     await sio.emit(
         "language_change",
@@ -277,15 +333,15 @@ async def language_change(sid, data):
 @sio.event
 async def cursor_update(sid, data):
     match_id = data.get("matchId")
-    if not match_id:
+    if not match_id or not await assert_member(sid, match_id):
         return
     await sio.emit(
         "cursor_update",
         {
             "userId": data.get("userId"),
             "username": data.get("username"),
-            "position": data.get("position"),  # { line, col, index }
+            "position": data.get("position"),
         },
         room=match_id,
-        skip_sid=sid  # don't echo back to sender
+        skip_sid=sid
     )

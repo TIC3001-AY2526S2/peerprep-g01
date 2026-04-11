@@ -1,13 +1,47 @@
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate, useParams } from "react-router-dom";
 import { AuthProvider, useAuth } from "./components/auth/AuthContext";
 import LoginForm from "./components/LoginForm";
 import HomePage from "./components/pages/HomePage";
 import ProfilePage from "./components/pages/ProfilePage";
 import CollabSession from "./components/pages/CollabSession";
 
+const COLLAB_URL = "http://localhost:3003";
+
 function PrivateRoute({ children }) {
   const { token } = useAuth();
   return token ? children : <Navigate to="/" replace />;
+}
+
+import { useState, useEffect } from "react";
+
+function CollabRoute() {
+  const { token, user } = useAuth();
+  const { matchId } = useParams();
+  const [status, setStatus] = useState("checking");
+
+  useEffect(() => {
+    if (!token || !user) {
+      setStatus("unauthorized");
+      return;
+    }
+
+    fetch(`${COLLAB_URL}/session/user/${user.id}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.session?.matchId === matchId) {
+          setStatus("authorized");
+        } else {
+          setStatus("unauthorized");
+        }
+      })
+      .catch(() => setStatus("unauthorized"));
+  }, [token, user, matchId]);
+
+  if (status === "checking") return <p>Verifying session...</p>;
+  if (status === "unauthorized") return <Navigate to="/homepage" replace />;
+  return <CollabSession />;
 }
 
 function AppRoutes() {
@@ -30,14 +64,14 @@ function AppRoutes() {
           </PrivateRoute>
         }
       />
-      <Route
-        path="/:matchId"
+      <Route 
+        path="/:matchId" 
         element={
           <PrivateRoute>
-            <CollabSession />
-          </PrivateRoute>
-        }
-      />
+            <CollabRoute />
+            </PrivateRoute>
+        } />
+
       {/* Catch-all: redirect unknown routes based on auth state */}
       <Route
         path="*"
