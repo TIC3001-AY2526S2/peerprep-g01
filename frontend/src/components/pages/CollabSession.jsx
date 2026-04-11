@@ -1,16 +1,84 @@
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 import React, { useEffect, useRef, useMemo, useState } from "react";
 import { socket } from "../../services/collaborationService";
-import { EditorView, basicSetup } from "codemirror";
+import { basicSetup } from "codemirror";
 import { debounce } from "lodash";
 import { python } from "@codemirror/lang-python";
 import { javascript } from "@codemirror/lang-javascript";
 import { java } from "@codemirror/lang-java";
 import { cpp } from "@codemirror/lang-cpp";
-import { Annotation } from "@codemirror/state";
+import { Annotation, StateEffect, StateField } from "@codemirror/state";
+import { WidgetType, EditorView, Decoration } from "@codemirror/view";
 import { useAuth } from "../auth/AuthContext";
 
+
 const ExternalUpdate = Annotation.define();
+
+const setRemoteCursor = StateEffect.define();
+
+// A widget that renders the cursor line + label
+class RemoteCursorWidget extends WidgetType {
+  constructor(username) { super(); this.username = username; }
+  toDOM() {
+    const wrap = document.createElement("span");
+      wrap.style.cssText = `
+        border-left: 2px solid #f97316;
+        margin-left: -1px;
+        position: relative;
+        display: inline-block;
+        height: 1em;
+        vertical-align: text-bottom;
+        pointer-events: auto;
+        cursor: default;
+      `;
+      const label = document.createElement("span");
+      label.textContent = this.username;
+      label.style.cssText = `
+        position: absolute;
+        top: -18px;
+        left: 0;
+        background: #f97316;
+        color: white;
+        font-size: 10px;
+        padding: 1px 5px;
+        border-radius: 3px;
+        white-space: nowrap;
+        font-family: sans-serif;
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity 0.15s ease;
+      `;
+      wrap.appendChild(label);
+
+      wrap.addEventListener("mouseenter", () => { label.style.opacity = "1"; });
+      wrap.addEventListener("mouseleave", () => { label.style.opacity = "0"; });
+
+      return wrap;
+    }
+  eq(other) { return other.username === this.username; }
+  ignoreEvent() { return true; }
+}
+
+// StateField holds the DecorationSet for remote cursors
+const remoteCursorField = StateField.define({
+  create() { return Decoration.none; },
+  update(decorations, tr) {
+    decorations = decorations.map(tr.changes); // shift positions with edits
+    for (const effect of tr.effects) {
+      if (effect.is(setRemoteCursor)) {
+        const { index, username } = effect.value;
+        const clamped = Math.min(index, tr.state.doc.length);
+        const deco = Decoration.widget({
+          widget: new RemoteCursorWidget(username),
+          side: 1,
+        }).range(clamped);
+        decorations = Decoration.set([deco]);
+      }
+    }
+    return decorations;
+  },
+  provide: (f) => EditorView.decorations.from(f),
+});
 
 const COLLAB_URL = import.meta.env.VITE_COLLAB_URL || "http://localhost:3003";
 
@@ -144,12 +212,29 @@ export default function CollabSession() {
       extensions: [
         basicSetup,
         getExtension(lang.mode),
+        remoteCursorField,
         EditorView.updateListener.of((update) => {
           if (
             update.docChanged &&
             !update.transactions.some((tr) => tr.annotation(ExternalUpdate))
           ) {
             debouncedEmit(matchId, update.state.doc.toString());
+          }
+
+          //cursor update
+          if (update.selectionSet) {
+            const head = update.state.selection.main.head;
+            const line = update.state.doc.lineAt(head);
+            socket.emit("cursor_update", {
+              matchId,
+              userId: user?.id,
+              username: user?.username || "Partner",
+              position: {
+                index: head,
+                line: line.number,
+                col: head - line.from,
+              },
+            });
           }
         }),
       ],
@@ -242,6 +327,7 @@ export default function CollabSession() {
       extensions: [
         basicSetup,
         getExtension(langRef.current.mode),
+        remoteCursorField,
         EditorView.updateListener.of((update) => {
           if (
             update.docChanged &&
@@ -249,6 +335,16 @@ export default function CollabSession() {
           ) {
             const content = update.state.doc.toString();
             debouncedEmit(matchId, content);
+          }
+          if (update.selectionSet) {
+            const head = update.state.selection.main.head;
+            const line = update.state.doc.lineAt(head);
+            socket.emit("cursor_update", {
+              matchId,
+              userId: user?.id,
+              username: user?.username || "Partner",
+              position: { index: head, line: line.number, col: head - line.from },
+            });
           }
         }),
       ],
@@ -287,10 +383,23 @@ export default function CollabSession() {
       }
     });
 
+    socket.on("cursor_update", (data) => {
+      if (data.userId === user?.id) return; // ignore own echo (shouldn't happen, but safe)
+      if (viewRef.current) {
+        viewRef.current.dispatch({
+          effects: setRemoteCursor.of({
+            index: data.position.index,
+            username: data.username,
+          }),
+        });
+      }
+    });
+
     return () => {
       socket.off("code_received");
       socket.off("chat_message");
       socket.off("language_change");
+      socket.off("cursor_update");
       view.destroy();
       debouncedEmit.cancel();
     };
