@@ -317,7 +317,8 @@ export default function CollabSession() {
 
   useEffect(() => {
     if (!matchId) return;
-
+    
+    socket.auth = { token: sessionStorage.getItem("token") };
     socket.connect();
     socket.emit("join_room", { matchId });
     socket.emit("request_history", { matchId });
