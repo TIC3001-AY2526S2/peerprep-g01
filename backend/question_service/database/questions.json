@@ -1,0 +1,916 @@
+[
+    {
+        "title": "Two Sum",
+        "description": "Given an array of integers nums and an integer target, return the indices of the two numbers that add up to target. Each input has exactly one solution, and you may not use the same element twice.",
+        "category": [
+            "Arrays",
+            "Algorithms"
+        ],
+        "complexity": "Easy"
+    },
+    {
+        "title": "Best Time to Buy and Sell Stock",
+        "description": "Given an array prices where prices[i] is the price of a stock on day i, return the maximum profit you can achieve by choosing a single day to buy and a single day to sell. If no profit is possible, return 0.",
+        "category": [
+            "Arrays",
+            "Algorithms"
+        ],
+        "complexity": "Easy"
+    },
+    {
+        "title": "Contains Duplicate",
+        "description": "Given an integer array nums, return true if any value appears at least twice in the array, and false if every element is distinct.",
+        "category": [
+            "Arrays",
+            "Data Structures"
+        ],
+        "complexity": "Easy"
+    },
+    {
+        "title": "Move Zeroes",
+        "description": "Given an integer array nums, move all 0s to the end while maintaining the relative order of the non-zero elements. You must do this in-place without making a copy of the array.",
+        "category": [
+            "Arrays",
+            "Algorithms"
+        ],
+        "complexity": "Easy"
+    },
+    {
+        "title": "Missing Number",
+        "description": "Given an array nums containing n distinct numbers in the range [0, n], return the only number in the range that is missing from the array.",
+        "category": [
+            "Arrays",
+            "Bit Manipulation"
+        ],
+        "complexity": "Easy"
+    },
+    {
+        "title": "Number of 1 Bits",
+        "description": "Write a function that takes an unsigned integer and returns the number of '1' bits it has (also known as the Hamming weight).",
+        "category": [
+            "Bit Manipulation"
+        ],
+        "complexity": "Easy"
+    },
+    {
+        "title": "Reverse Bits",
+        "description": "Reverse the bits of a given 32-bit unsigned integer and return the result.",
+        "category": [
+            "Bit Manipulation"
+        ],
+        "complexity": "Easy"
+    },
+    {
+        "title": "Single Number",
+        "description": "Given a non-empty array of integers nums, every element appears twice except for one. Find that single one. You must implement a solution with linear runtime complexity and use only constant extra space.",
+        "category": [
+            "Bit Manipulation",
+            "Arrays"
+        ],
+        "complexity": "Easy"
+    },
+    {
+        "title": "Power of Two",
+        "description": "Given an integer n, return true if it is a power of two. An integer n is a power of two if there exists an integer x such that n == 2^x.",
+        "category": [
+            "Bit Manipulation"
+        ],
+        "complexity": "Easy"
+    },
+    {
+        "title": "Valid Parentheses",
+        "description": "Given a string s containing just the characters '(', ')', '{', '}', '[' and ']', determine if the input string is valid. An input string is valid if open brackets are closed by the same type of bracket and in the correct order.",
+        "category": [
+            "Data Structures",
+            "Algorithms"
+        ],
+        "complexity": "Easy"
+    },
+    {
+        "title": "Merge Two Sorted Lists",
+        "description": "Merge two sorted linked lists and return the head of the merged list. The list should be made by splicing together the nodes of the first two lists.",
+        "category": [
+            "Data Structures",
+            "Algorithms"
+        ],
+        "complexity": "Easy"
+    },
+    {
+        "title": "Maximum Depth of Binary Tree",
+        "description": "Given the root of a binary tree, return its maximum depth. The maximum depth is the number of nodes along the longest path from the root node down to the farthest leaf node.",
+        "category": [
+            "Data Structures",
+            "Recursions"
+        ],
+        "complexity": "Easy"
+    },
+    {
+        "title": "Symmetric Tree",
+        "description": "Given the root of a binary tree, check whether it is a mirror of itself (i.e., symmetric around its center).",
+        "category": [
+            "Data Structures",
+            "Recursions"
+        ],
+        "complexity": "Easy"
+    },
+    {
+        "title": "Invert Binary Tree",
+        "description": "Given the root of a binary tree, invert the tree (mirror it), and return its root.",
+        "category": [
+            "Data Structures",
+            "Recursions"
+        ],
+        "complexity": "Easy"
+    },
+    {
+        "title": "Merge Sorted Array",
+        "description": "Given two integer arrays nums1 and nums2, both sorted in non-decreasing order, merge nums2 into nums1 as one sorted array in-place. nums1 has a length of m + n, with the last n elements set to 0.",
+        "category": [
+            "Sorting",
+            "Arrays"
+        ],
+        "complexity": "Easy"
+    },
+    {
+        "title": "Reverse a String",
+        "description": "Write a function that reverses a string. The input string is given as an array of characters s. You must do this by modifying the input array in-place with O(1) extra memory.",
+        "category": [
+            "Algorithms"
+        ],
+        "complexity": "Easy"
+    },
+    {
+        "title": "Roman to Integer",
+        "description": "Given a roman numeral string, convert it to an integer. Roman numerals use symbols I, V, X, L, C, D, M. When a smaller value precedes a larger one, it is subtracted rather than added.",
+        "category": [
+            "Algorithms"
+        ],
+        "complexity": "Easy"
+    },
+    {
+        "title": "Fibonacci Number",
+        "description": "Compute F(n), where F(n) = F(n-1) + F(n-2) for n > 1, with base cases F(0) = 0 and F(1) = 1.",
+        "category": [
+            "Recursions",
+            "Algorithms"
+        ],
+        "complexity": "Easy"
+    },
+    {
+        "title": "Climbing Stairs",
+        "description": "You are climbing a staircase that takes n steps to reach the top. Each time you can climb 1 or 2 steps. Return the number of distinct ways to climb to the top.",
+        "category": [
+            "Recursions",
+            "Algorithms"
+        ],
+        "complexity": "Easy"
+    },
+    {
+        "title": "Combine Two Tables",
+        "description": "Write a SQL query to report the first name, last name, city, and state of each person using a LEFT JOIN between the Person and Address tables. If a person has no address, report null for city and state.",
+        "category": [
+            "Databases"
+        ],
+        "complexity": "Easy"
+    },
+    {
+        "title": "Employees Earning More Than Their Managers",
+        "description": "Write a SQL query to find employees whose salary is strictly greater than the salary of their direct manager, using a self-join on the Employee table.",
+        "category": [
+            "Databases"
+        ],
+        "complexity": "Easy"
+    },
+    {
+        "title": "Duplicate Emails",
+        "description": "Write a SQL query to report all duplicate email addresses in the Person table. An email is considered duplicate if it appears more than once.",
+        "category": [
+            "Databases"
+        ],
+        "complexity": "Easy"
+    },
+    {
+        "title": "Nim Game",
+        "description": "In the Nim game, there is a heap of stones and two players take turns removing 1, 2, or 3 stones. The player who removes the last stone wins. Given n stones, return true if you can win assuming both players play optimally.",
+        "category": [
+            "Brain Teasers",
+            "Algorithms"
+        ],
+        "complexity": "Easy"
+    },
+    {
+        "title": "Flip Game",
+        "description": "Given a string currentState with only '+' and '-', in one move you can change '++' to '--'. Return true if the starting player can guarantee a win assuming optimal play from both sides.",
+        "category": [
+            "Brain Teasers"
+        ],
+        "complexity": "Easy"
+    },
+    {
+        "title": "Find the Town Judge",
+        "description": "In a town of n people, find the judge who trusts nobody but is trusted by everyone else, given a list of trust relationships as pairs [a, b] meaning a trusts b. Return the judge's label, or -1 if no such person exists.",
+        "category": [
+            "Shortest Path",
+            "Algorithms"
+        ],
+        "complexity": "Easy"
+    },
+    {
+        "title": "Product of Array Except Self",
+        "description": "Given an integer array nums, return an array answer such that answer[i] is equal to the product of all elements of nums except nums[i]. You must solve it in O(n) time without using the division operation.",
+        "category": [
+            "Arrays",
+            "Algorithms"
+        ],
+        "complexity": "Medium"
+    },
+    {
+        "title": "3Sum",
+        "description": "Given an integer array nums, find all unique triplets [nums[i], nums[j], nums[k]] such that i, j, k are distinct indices and nums[i] + nums[j] + nums[k] == 0. The solution set must not contain duplicate triplets.",
+        "category": [
+            "Arrays",
+            "Algorithms"
+        ],
+        "complexity": "Medium"
+    },
+    {
+        "title": "Container With Most Water",
+        "description": "Given an integer array height of length n, find two lines that together with the x-axis form a container that holds the most water. Return the maximum amount of water that can be stored.",
+        "category": [
+            "Arrays",
+            "Algorithms"
+        ],
+        "complexity": "Medium"
+    },
+    {
+        "title": "Subarray Sum Equals K",
+        "description": "Given an array of integers nums and an integer k, return the total number of subarrays whose elements sum to k.",
+        "category": [
+            "Arrays",
+            "Algorithms"
+        ],
+        "complexity": "Medium"
+    },
+    {
+        "title": "Rotate Image",
+        "description": "Given an n x n 2D matrix representing an image, rotate the matrix 90 degrees clockwise in-place without allocating another 2D matrix.",
+        "category": [
+            "Arrays",
+            "Algorithms"
+        ],
+        "complexity": "Medium"
+    },
+    {
+        "title": "Spiral Matrix",
+        "description": "Given an m x n matrix, return all elements of the matrix in spiral order, traversing right, down, left, then up and repeating until all elements are visited.",
+        "category": [
+            "Arrays",
+            "Algorithms"
+        ],
+        "complexity": "Medium"
+    },
+    {
+        "title": "Longest Substring Without Repeating Characters",
+        "description": "Given a string s, find the length of the longest substring that contains no repeating characters, using a sliding window approach.",
+        "category": [
+            "Algorithms"
+        ],
+        "complexity": "Medium"
+    },
+    {
+        "title": "Group Anagrams",
+        "description": "Given an array of strings strs, group the anagrams together and return them in any order. Two strings are anagrams if one can be rearranged to form the other.",
+        "category": [
+            "Algorithms",
+            "Sorting"
+        ],
+        "complexity": "Medium"
+    },
+    {
+        "title": "Top K Frequent Elements",
+        "description": "Given an integer array nums and an integer k, return the k most frequent elements. You may return the answer in any order.",
+        "category": [
+            "Algorithms",
+            "Sorting"
+        ],
+        "complexity": "Medium"
+    },
+    {
+        "title": "Repeated DNA Sequences",
+        "description": "Given a DNA string s, return all 10-letter-long substrings that appear more than once. A DNA string consists only of the characters A, C, G, and T.",
+        "category": [
+            "Algorithms",
+            "Bit Manipulation"
+        ],
+        "complexity": "Medium"
+    },
+    {
+        "title": "Jump Game",
+        "description": "Given an integer array nums where nums[i] is the maximum jump length from index i, return true if you can reach the last index starting from index 0.",
+        "category": [
+            "Algorithms",
+            "Arrays"
+        ],
+        "complexity": "Medium"
+    },
+    {
+        "title": "Decode Ways",
+        "description": "A message encoded as digits can be decoded by mapping '1' to 'A', '2' to 'B', ..., '26' to 'Z'. Given a string s of digits, return the total number of ways to decode it.",
+        "category": [
+            "Algorithms",
+            "Recursions"
+        ],
+        "complexity": "Medium"
+    },
+    {
+        "title": "Sort Colors",
+        "description": "Given an array nums with n objects colored red, white, or blue (represented as 0, 1, 2), sort them in-place so that objects of the same color are adjacent in that order, without using the sort function.",
+        "category": [
+            "Sorting",
+            "Arrays"
+        ],
+        "complexity": "Medium"
+    },
+    {
+        "title": "Kth Largest Element in an Array",
+        "description": "Given an integer array nums and an integer k, return the kth largest element in the array. Note that it is the kth largest in sorted order, not the kth distinct element.",
+        "category": [
+            "Sorting",
+            "Algorithms"
+        ],
+        "complexity": "Medium"
+    },
+    {
+        "title": "Merge Intervals",
+        "description": "Given an array of intervals where intervals[i] = [starti, endi], merge all overlapping intervals and return an array of the non-overlapping intervals that cover all the intervals in the input.",
+        "category": [
+            "Sorting",
+            "Arrays"
+        ],
+        "complexity": "Medium"
+    },
+    {
+        "title": "Meeting Rooms II",
+        "description": "Given an array of meeting time intervals [start, end], return the minimum number of conference rooms required to schedule all meetings without overlap.",
+        "category": [
+            "Sorting",
+            "Algorithms"
+        ],
+        "complexity": "Medium"
+    },
+    {
+        "title": "Course Schedule",
+        "description": "There are numCourses courses labeled 0 to numCourses-1. Given a list of prerequisites [a, b] meaning b must be taken before a, determine if it is possible to finish all courses (i.e., the graph has no cycle).",
+        "category": [
+            "Data Structures",
+            "Algorithms"
+        ],
+        "complexity": "Medium"
+    },
+    {
+        "title": "LRU Cache Design",
+        "description": "Design a data structure that follows the Least Recently Used (LRU) cache eviction policy, supporting get(key) and put(key, value) operations in O(1) time.",
+        "category": [
+            "Data Structures"
+        ],
+        "complexity": "Medium"
+    },
+    {
+        "title": "Binary Tree Level Order Traversal",
+        "description": "Given the root of a binary tree, return the level order traversal of its nodes' values as a list of lists, where each inner list contains node values at that depth.",
+        "category": [
+            "Data Structures",
+            "Algorithms"
+        ],
+        "complexity": "Medium"
+    },
+    {
+        "title": "Kth Smallest Element in a BST",
+        "description": "Given the root of a binary search tree and an integer k, return the kth smallest value (1-indexed) among all node values in the tree.",
+        "category": [
+            "Data Structures",
+            "Recursions"
+        ],
+        "complexity": "Medium"
+    },
+    {
+        "title": "Implement Trie",
+        "description": "Design a trie data structure that supports insert(word), search(word) returning true if the word was inserted, and startsWith(prefix) returning true if any inserted word has that prefix.",
+        "category": [
+            "Data Structures"
+        ],
+        "complexity": "Medium"
+    },
+    {
+        "title": "Binary Search Tree Iterator",
+        "description": "Implement an iterator over a binary search tree. next() returns the next smallest number, and hasNext() returns whether the next call to next() would return a valid number. Both must run in O(1) average time using O(h) memory.",
+        "category": [
+            "Data Structures",
+            "Recursions"
+        ],
+        "complexity": "Medium"
+    },
+    {
+        "title": "Permutations",
+        "description": "Given an array nums of distinct integers, return all possible permutations in any order using backtracking.",
+        "category": [
+            "Recursions",
+            "Algorithms"
+        ],
+        "complexity": "Medium"
+    },
+    {
+        "title": "Combination Sum",
+        "description": "Given an array of distinct integers candidates and a target integer, return all unique combinations of candidates where the chosen numbers sum to target. Each number may be used unlimited times.",
+        "category": [
+            "Recursions",
+            "Algorithms"
+        ],
+        "complexity": "Medium"
+    },
+    {
+        "title": "Letter Combinations of a Phone Number",
+        "description": "Given a string of digits from 2 to 9, return all possible letter combinations those digits could represent using the standard telephone digit-to-letters mapping.",
+        "category": [
+            "Recursions",
+            "Algorithms"
+        ],
+        "complexity": "Medium"
+    },
+    {
+        "title": "Subsets",
+        "description": "Given an integer array nums of unique elements, return all possible subsets (the power set). The solution set must not contain duplicate subsets.",
+        "category": [
+            "Recursions",
+            "Algorithms"
+        ],
+        "complexity": "Medium"
+    },
+    {
+        "title": "Generate Parentheses",
+        "description": "Given n pairs of parentheses, generate all combinations of well-formed parentheses strings using backtracking.",
+        "category": [
+            "Recursions",
+            "Algorithms"
+        ],
+        "complexity": "Medium"
+    },
+    {
+        "title": "Unique Binary Search Trees II",
+        "description": "Given an integer n, return all structurally unique BSTs with n nodes having values from 1 to n.",
+        "category": [
+            "Recursions",
+            "Data Structures"
+        ],
+        "complexity": "Medium"
+    },
+    {
+        "title": "Number of Islands",
+        "description": "Given an m x n grid of '1' (land) and '0' (water), return the number of islands. An island is surrounded by water and is formed by connecting adjacent lands horizontally or vertically.",
+        "category": [
+            "Shortest Path",
+            "Algorithms"
+        ],
+        "complexity": "Medium"
+    },
+    {
+        "title": "Clone Graph",
+        "description": "Given a reference to a node in a connected undirected graph, return a deep copy of the graph. Each node contains a value and a list of its neighbors.",
+        "category": [
+            "Shortest Path",
+            "Data Structures"
+        ],
+        "complexity": "Medium"
+    },
+    {
+        "title": "Pacific Atlantic Water Flow",
+        "description": "Given an m x n matrix of heights, find all cells from which water can flow to both the Pacific Ocean (top/left border) and the Atlantic Ocean (bottom/right border).",
+        "category": [
+            "Shortest Path",
+            "Algorithms"
+        ],
+        "complexity": "Medium"
+    },
+    {
+        "title": "Rank Scores",
+        "description": "Write a SQL query to rank scores from a Scores table in descending order. The ranking should be continuous \u2014 if two scores are tied, they receive the same rank and the next rank is not skipped.",
+        "category": [
+            "Databases"
+        ],
+        "complexity": "Medium"
+    },
+    {
+        "title": "Consecutive Numbers",
+        "description": "Write a SQL query to find all numbers that appear at least three times consecutively in the Logs table.",
+        "category": [
+            "Databases"
+        ],
+        "complexity": "Medium"
+    },
+    {
+        "title": "Department Highest Salary",
+        "description": "Write a SQL query to find the employee with the highest salary in each department by joining the Employee and Department tables.",
+        "category": [
+            "Databases"
+        ],
+        "complexity": "Medium"
+    },
+    {
+        "title": "Airplane Seat Assignment Probability",
+        "description": "n passengers board an airplane with n seats. The first passenger picks a random seat. Each subsequent passenger sits in their own seat if available, otherwise picks randomly. Return the probability that the nth passenger gets their own seat.",
+        "category": [
+            "Brain Teasers",
+            "Algorithms"
+        ],
+        "complexity": "Medium"
+    },
+    {
+        "title": "Guess the Word",
+        "description": "You are given a list of secret words and a master.guess(word) API that returns the number of exact position matches. Call the API at most 10 times to identify the secret word.",
+        "category": [
+            "Brain Teasers",
+            "Algorithms"
+        ],
+        "complexity": "Medium"
+    },
+    {
+        "title": "Trapping Rain Water",
+        "description": "Given n non-negative integers representing an elevation map where each bar has width 1, compute how much water it can trap after raining.",
+        "category": [
+            "Arrays",
+            "Algorithms"
+        ],
+        "complexity": "Hard"
+    },
+    {
+        "title": "Sliding Window Maximum",
+        "description": "Given an integer array nums and a sliding window of size k, return the maximum value in the window as it moves from left to right across the array.",
+        "category": [
+            "Arrays",
+            "Data Structures"
+        ],
+        "complexity": "Hard"
+    },
+    {
+        "title": "First Missing Positive",
+        "description": "Given an unsorted integer array nums, return the smallest missing positive integer. Your solution must run in O(n) time and use O(1) auxiliary space.",
+        "category": [
+            "Arrays",
+            "Algorithms"
+        ],
+        "complexity": "Hard"
+    },
+    {
+        "title": "Median of Two Sorted Arrays",
+        "description": "Given two sorted arrays nums1 and nums2 of sizes m and n, return the median of the two sorted arrays combined. The overall run time complexity must be O(log(m + n)).",
+        "category": [
+            "Algorithms",
+            "Sorting"
+        ],
+        "complexity": "Hard"
+    },
+    {
+        "title": "Longest Palindromic Substring",
+        "description": "Given a string s, return the longest substring of s that is a palindrome. If multiple answers exist, return any one of them.",
+        "category": [
+            "Algorithms"
+        ],
+        "complexity": "Hard"
+    },
+    {
+        "title": "Wildcard Matching",
+        "description": "Implement full-string wildcard pattern matching where '?' matches any single character and '*' matches any sequence of characters (including empty). Return true if the pattern matches the entire input string.",
+        "category": [
+            "Algorithms",
+            "Recursions"
+        ],
+        "complexity": "Hard"
+    },
+    {
+        "title": "Regular Expression Matching",
+        "description": "Implement regular expression matching supporting '.' (matches any single character) and '*' (matches zero or more of the preceding element). The match must cover the entire input string.",
+        "category": [
+            "Algorithms",
+            "Recursions"
+        ],
+        "complexity": "Hard"
+    },
+    {
+        "title": "Edit Distance",
+        "description": "Given two strings word1 and word2, return the minimum number of operations (insert, delete, or replace a character) required to convert word1 into word2.",
+        "category": [
+            "Algorithms",
+            "Recursions"
+        ],
+        "complexity": "Hard"
+    },
+    {
+        "title": "Largest Rectangle in Histogram",
+        "description": "Given an array of integers heights representing the histogram's bar heights where each bar has a width of 1, return the area of the largest rectangle that can be formed within the histogram.",
+        "category": [
+            "Sorting",
+            "Algorithms"
+        ],
+        "complexity": "Hard"
+    },
+    {
+        "title": "Count of Smaller Numbers After Self",
+        "description": "Given an integer array nums, return an integer array counts where counts[i] is the number of smaller elements to the right of nums[i].",
+        "category": [
+            "Sorting",
+            "Data Structures"
+        ],
+        "complexity": "Hard"
+    },
+    {
+        "title": "Find Median from Data Stream",
+        "description": "Design a data structure that supports adding integers from a data stream and finding the median of all elements so far in O(log n) time per add and O(1) time per median query.",
+        "category": [
+            "Sorting",
+            "Data Structures"
+        ],
+        "complexity": "Hard"
+    },
+    {
+        "title": "Serialize and Deserialize a Binary Tree",
+        "description": "Design an algorithm to serialize a binary tree into a string and deserialize that string back into the original tree structure. There is no restriction on your serialization format.",
+        "category": [
+            "Data Structures",
+            "Algorithms"
+        ],
+        "complexity": "Hard"
+    },
+    {
+        "title": "Word Search II",
+        "description": "Given an m x n board of characters and a list of words, return all words that can be found in the board. Words must be constructed from sequentially adjacent cells, and the same cell may not be used more than once per word.",
+        "category": [
+            "Data Structures",
+            "Algorithms"
+        ],
+        "complexity": "Hard"
+    },
+    {
+        "title": "Longest Consecutive Sequence",
+        "description": "Given an unsorted array of integers nums, return the length of the longest consecutive elements sequence. Your algorithm must run in O(n) time.",
+        "category": [
+            "Data Structures",
+            "Algorithms"
+        ],
+        "complexity": "Hard"
+    },
+    {
+        "title": "LFU Cache",
+        "description": "Design a data structure for a Least Frequently Used (LFU) cache supporting get(key) and put(key, value) in O(1) time. When capacity is reached, evict the least frequently used key, breaking ties by evicting the least recently used.",
+        "category": [
+            "Data Structures"
+        ],
+        "complexity": "Hard"
+    },
+    {
+        "title": "N-Queens Problem",
+        "description": "Place n queens on an n x n chessboard such that no two queens threaten each other. Return all distinct board configurations as a list of strings, where 'Q' denotes a queen and '.' denotes an empty cell.",
+        "category": [
+            "Recursions",
+            "Algorithms"
+        ],
+        "complexity": "Hard"
+    },
+    {
+        "title": "Sudoku Solver",
+        "description": "Write a program to solve a Sudoku puzzle by filling in the empty cells, following the rules that each row, column, and 3x3 box must contain digits 1 to 9 with no repetition.",
+        "category": [
+            "Recursions",
+            "Algorithms"
+        ],
+        "complexity": "Hard"
+    },
+    {
+        "title": "Palindrome Partitioning",
+        "description": "Given a string s, partition it such that every substring of the partition is a palindrome. Return all possible palindrome partitioning of s.",
+        "category": [
+            "Recursions",
+            "Algorithms"
+        ],
+        "complexity": "Hard"
+    },
+    {
+        "title": "Word Break II",
+        "description": "Given a string s and a dictionary of words wordDict, return all possible ways to segment s into a space-separated sequence of one or more dictionary words.",
+        "category": [
+            "Recursions",
+            "Algorithms"
+        ],
+        "complexity": "Hard"
+    },
+    {
+        "title": "Word Ladder",
+        "description": "Given two words beginWord and endWord, and a word list, find the length of the shortest transformation sequence from beginWord to endWord such that only one letter changes at each step and every intermediate word is in the word list.",
+        "category": [
+            "Shortest Path",
+            "Algorithms"
+        ],
+        "complexity": "Hard"
+    },
+    {
+        "title": "Network Delay Time",
+        "description": "Given a list of travel times as directed edges (u, v, w), a number of nodes n, and a source node k, return the minimum time for all nodes to receive a signal from k, or -1 if not all nodes are reachable.",
+        "category": [
+            "Shortest Path",
+            "Algorithms"
+        ],
+        "complexity": "Hard"
+    },
+    {
+        "title": "Cheapest Flights Within K Stops",
+        "description": "Given n cities connected by flights with prices, a source src, destination dst, and at most k stops, find the cheapest price from src to dst with at most k stops, or -1 if no such route exists.",
+        "category": [
+            "Shortest Path",
+            "Algorithms"
+        ],
+        "complexity": "Hard"
+    },
+    {
+        "title": "Reconstruct Itinerary",
+        "description": "Given a list of airline tickets as [from, to] pairs, reconstruct the itinerary in lexicographic order. The itinerary must begin with 'JFK', and all tickets must be used exactly once.",
+        "category": [
+            "Shortest Path",
+            "Data Structures"
+        ],
+        "complexity": "Hard"
+    },
+    {
+        "title": "Counting Bits",
+        "description": "Given an integer n, return an array ans of length n + 1 such that ans[i] is the number of 1 bits in the binary representation of i.",
+        "category": [
+            "Bit Manipulation"
+        ],
+        "complexity": "Hard"
+    },
+    {
+        "title": "Maximum XOR of Two Numbers in an Array",
+        "description": "Given an integer array nums, find the maximum result of nums[i] XOR nums[j] for all valid pairs (i, j). Use a bitwise trie to solve it in O(n) time.",
+        "category": [
+            "Bit Manipulation",
+            "Data Structures"
+        ],
+        "complexity": "Hard"
+    },
+    {
+        "title": "Longest Increasing Subsequence",
+        "description": "Given an integer array nums, return the length of the longest strictly increasing subsequence. Aim for an O(n log n) solution using binary search.",
+        "category": [
+            "Algorithms",
+            "Sorting"
+        ],
+        "complexity": "Hard"
+    },
+    {
+        "title": "Trips and Users",
+        "description": "Write a SQL query to compute the cancellation rate (rounded to two decimal places) of requests made by unbanned users between 2013-10-01 and 2013-10-03, grouping results by day.",
+        "category": [
+            "Databases"
+        ],
+        "complexity": "Hard"
+    },
+    {
+        "title": "Human Traffic of Stadium",
+        "description": "Write a SQL query to find rows in the Stadium table where three or more consecutive rows all have people counts of 100 or more, returning them ordered by visit date.",
+        "category": [
+            "Databases"
+        ],
+        "complexity": "Hard"
+    },
+    {
+        "title": "Chalkboard XOR Game",
+        "description": "Alice and Bob take turns erasing a number from a chalkboard. A player loses if they erase a number such that the XOR of all remaining numbers is 0, or if all numbers are erased and the current XOR is non-zero. Determine if Alice wins with optimal play.",
+        "category": [
+            "Brain Teasers",
+            "Bit Manipulation"
+        ],
+        "complexity": "Hard"
+    },
+    {
+        "title": "24 Game",
+        "description": "Given four integers from 1 to 9, determine whether you can combine them using +, -, *, / and parentheses (each number used exactly once) to obtain the value 24.",
+        "category": [
+            "Brain Teasers",
+            "Recursions"
+        ],
+        "complexity": "Hard"
+    },
+    {
+        "title": "Implement Stack using Queues",
+        "description": "Implement a last-in-first-out (LIFO) stack using only two queues, supporting push(x), pop(), top(), and empty() operations.",
+        "category": [
+            "Data Structures"
+        ],
+        "complexity": "Easy"
+    },
+    {
+        "title": "Add Binary",
+        "description": "Given two binary strings a and b, return their sum as a binary string without converting to integers.",
+        "category": [
+            "Bit Manipulation",
+            "Algorithms"
+        ],
+        "complexity": "Easy"
+    },
+    {
+        "title": "Linked List Cycle Detection",
+        "description": "Given the head of a linked list, determine if the list contains a cycle using Floyd's tortoise-and-hare algorithm.",
+        "category": [
+            "Data Structures",
+            "Algorithms"
+        ],
+        "complexity": "Easy"
+    },
+    {
+        "title": "Validate Binary Search Tree",
+        "description": "Given the root of a binary tree, determine if it is a valid binary search tree where every left subtree contains only values less than the node and every right subtree contains only values greater.",
+        "category": [
+            "Data Structures",
+            "Algorithms"
+        ],
+        "complexity": "Medium"
+    },
+    {
+        "title": "Lowest Common Ancestor of a BST",
+        "description": "Given a binary search tree and two nodes p and q, find their lowest common ancestor \u2014 the deepest node that is an ancestor of both p and q.",
+        "category": [
+            "Data Structures",
+            "Recursions"
+        ],
+        "complexity": "Medium"
+    },
+    {
+        "title": "Find Minimum in Rotated Sorted Array",
+        "description": "Given a sorted array rotated at an unknown pivot, find the minimum element. Your solution must run in O(log n) time.",
+        "category": [
+            "Algorithms",
+            "Arrays"
+        ],
+        "complexity": "Medium"
+    },
+    {
+        "title": "Search in Rotated Sorted Array",
+        "description": "Given a sorted integer array rotated at an unknown pivot and a target value, return its index if found, or -1 if not. Your solution must run in O(log n) time.",
+        "category": [
+            "Algorithms",
+            "Arrays"
+        ],
+        "complexity": "Medium"
+    },
+    {
+        "title": "Coin Change",
+        "description": "Given an array of coin denominations and an integer amount, return the fewest number of coins needed to make up that amount, or -1 if it is not possible.",
+        "category": [
+            "Algorithms",
+            "Recursions"
+        ],
+        "complexity": "Medium"
+    },
+    {
+        "title": "House Robber",
+        "description": "Given an array nums where nums[i] represents the money in the ith house, return the maximum amount you can rob without robbing two adjacent houses.",
+        "category": [
+            "Algorithms",
+            "Recursions"
+        ],
+        "complexity": "Medium"
+    },
+    {
+        "title": "Longest Common Subsequence",
+        "description": "Given two strings text1 and text2, return the length of their longest common subsequence \u2014 the longest sequence of characters that appears in both strings in the same relative order.",
+        "category": [
+            "Algorithms",
+            "Recursions"
+        ],
+        "complexity": "Medium"
+    },
+    {
+        "title": "Maximum Subarray",
+        "description": "Given an integer array nums, find the contiguous subarray with the largest sum and return its sum. Use Kadane's algorithm for an O(n) solution.",
+        "category": [
+            "Arrays",
+            "Algorithms"
+        ],
+        "complexity": "Medium"
+    },
+    {
+        "title": "Minimum Window Substring",
+        "description": "Given strings s and t, return the minimum window substring of s that contains all characters of t. If no such window exists, return an empty string.",
+        "category": [
+            "Algorithms"
+        ],
+        "complexity": "Hard"
+    },
+    {
+        "title": "Alien Dictionary",
+        "description": "Given a sorted list of words from an alien language, derive the order of letters in that language. Return any valid ordering of the letters, or an empty string if no valid ordering exists.",
+        "category": [
+            "Shortest Path",
+            "Algorithms"
+        ],
+        "complexity": "Hard"
+    }
+]
