@@ -20,12 +20,36 @@ export default function MatchingTab({ showToast, currentUser }) {
 
   useEffect(() => {
     if (!currentUser?.id) return;
-    fetch(`${COLLAB_URL}/session/user/${currentUser.id}`)
-      .then((r) => r.json())
-      .then((data) => {
-        if (data.session) setLastSession(data.session);
+
+    // Use an AbortController to clean up if the component unmounts
+    const controller = new AbortController();
+
+    fetch(`${COLLAB_URL}/session/user/${currentUser.id}`, {
+      signal: controller.signal
+    })
+      .then((r) => {
+        // Check if response is actually okay (200-299)
+        if (!r.ok) throw new Error(`Server responded with ${r.status}`);
+        return r.json();
       })
-      .catch((e) => console.error("[!] Failed to fetch user session:", e));
+      .then((data) => {
+        // Only update if data exists
+        if (data && data.session) {
+          setLastSession(data.session);
+        } else {
+          setLastSession(null);
+        }
+      })
+      .catch((e) => {
+        // This catches container-down errors (Connection Refused)
+        if (e.name === 'AbortError') return;
+
+        console.warn("[!] Collaboration Service unreachable. User session check skipped.", e.message);
+        // Explicitly set to null so the UI doesn't hang waiting
+        setLastSession(null);
+      });
+
+    return () => controller.abort();
   }, [currentUser?.id]);
 
   useEffect(() => {
@@ -68,12 +92,20 @@ export default function MatchingTab({ showToast, currentUser }) {
     return () => closeMatchingSocket(wsRef.current);
   }, [payload]);
 
-  const handleDismissSession = () => {
+const handleDismissSession = () => {
     if (!currentUser?.id) return;
+
+    // 1. Optimistically clear UI state first
+    setLastSession(null);
+
+    // 2. Attempt to notify the server in the background
     fetch(`${COLLAB_URL}/session/user/${currentUser.id}`, {
       method: "DELETE",
-    }).catch((e) => console.error("[!] Failed to clear user session:", e));
-    setLastSession(null);
+    }).catch((e) => {
+      // If this fails, it's okay because the container is likely down.
+      // The session in Redis will eventually expire on its own.
+      console.warn("[!] Background session clear failed (Service offline).", e.message);
+    });
   };
 
   return (

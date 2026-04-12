@@ -1,12 +1,15 @@
-from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 import uuid
 import requests
 import httpx
-
+import json
+import redis.asyncio as aioredis
+from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 from core.connection_manager import manager
 from services.matcher import try_match, add_to_queue, remove_from_queue
 
 router = APIRouter()
+
+redis_client = aioredis.from_url("redis://redis:6379", decode_responses=True)
 
 @router.websocket('/ws/match')
 async def websocket_match(websocket: WebSocket):
@@ -59,53 +62,25 @@ async def handle_match(user_id, user_data, match):
         'http://question-service:8000/questions/internal/get_match_question',
         params={'category': category, 'complexity': complexity}
     )
-    if response.status_code != 200:
-        print(f"[!] Question service error: {response.status_code} {response.text}")
-        question = None
-    else:
-        question_data = response.json()
-        question = question_data[0] if question_data else None
+    question = response.json()[0] if response.status_code == 200 and response.json() else None
 
-    async with httpx.AsyncClient() as client:
-        try:
-            collab_response = await client.post(
-                'http://collaboration-service:8000/internal/init-session',
-                json={'matchId': match_id, 'question': question},
-                timeout=5.0
-            )
-            collab_response.raise_for_status()
-            print(f"[+] Collab session initialized for {match_id}")
-        except Exception as e:
-            print(f"[!] Failed to initialize collab session: {e}")
+    try:
+        event_payload = {
+            "matchId": match_id,
+            "question": json.dumps(question),
+            "user1": json.dumps(user_data['user']),
+            "user2": json.dumps(match['user'])
+        }
 
-        try:
-            await client.post(
-                'http://collaboration-service:8000/internal/save-user-session',
-                json={
-                    'userId': user_data['user']['id'],
-                    'matchId': match_id,
-                    'matchedWith': match['user'],
-                    'question': question,
-                },
-                timeout=5.0
-            )
-        except Exception as e:
-            print(f"[!] Failed to save user session for {user_data['user']['id']}: {e}")
+        # XADD sends the data to the 'match_events' stream
+        await redis_client.xadd("match_events", event_payload, maxlen=1000)
+        print(f"[+] Event Bus: Broadcasted match {match_id}")
 
-        try:
-            await client.post(
-                'http://collaboration-service:8000/internal/save-user-session',
-                json={
-                    'userId': match['user']['id'],
-                    'matchId': match_id,
-                    'matchedWith': user_data['user'],
-                    'question': question,
-                },
-                timeout=5.0
-            )
-        except Exception as e:
-            print(f"[!] Failed to save user session for {match['user']['id']}: {e}")
+    except Exception as e:
+        print(f"[!] Event Bus Error: Failed to publish match: {e}")
+        # Note: In a production app, you'd want a fallback or retry here
 
+    # 3. Notify both users via WebSockets as before
     await manager.send(user_id, {
         'status': 'matched',
         'match_id': match_id,

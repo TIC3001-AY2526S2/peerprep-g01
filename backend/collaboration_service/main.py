@@ -2,12 +2,14 @@ import os
 import json
 import httpx
 import jwt
+import asyncio
 import redis.asyncio as aioredis
 import socketio
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from dotenv import load_dotenv
 from fastapi.middleware.cors import CORSMiddleware
+from contextlib import asynccontextmanager
 
 load_dotenv()
 
@@ -30,7 +32,66 @@ def verify_token(token: str) -> str | None:
     except jwt.InvalidTokenError:
         print("[!] Invalid token")
         return None
-    
+
+# --- Background Worker Logic ---
+
+async def consume_match_events():
+    """
+    Listens for events on the Redis Stream 'match_events'.
+    Initializes sessions and user metadata asynchronously.
+    """
+    group_name = "collab_group"
+    stream_name = "match_events"
+
+    # Ensure consumer group exists
+    try:
+        await redis_client.xgroup_create(stream_name, group_name, mkstream=True)
+    except Exception:
+        pass # Group already exists
+
+    print(f"[*] Worker: Started listening on stream '{stream_name}'")
+
+    while True:
+        try:
+            # Read new messages (">" means never delivered to other consumers in group)
+            # block=5000 waits up to 5 seconds for a new message
+            response = await redis_client.xreadgroup(
+                group_name, "worker_1", {stream_name: ">"}, count=1, block=5000
+            )
+
+            if not response:
+                continue
+
+            for stream, messages in response:
+                for message_id, data in messages:
+                    # 1. Parse Event Data
+                    match_id = data.get("matchId")
+                    question = json.loads(data.get("question"))
+                    user1 = json.loads(data.get("user1"))
+                    user2 = json.loads(data.get("user2"))
+
+                    # 2. Session Initialization (Formerly /internal/init-session)
+                    await redis_client.set(f"question:{match_id}", json.dumps(question), ex=86400)
+                    if not await redis_client.exists(f"code:{match_id}"):
+                        await redis_client.set(f"code:{match_id}", "# Start collaborating...\n", ex=86400)
+
+                    # 3. User Persistence (Formerly /internal/save-user-session)
+                    for user, partner in [(user1, user2), (user2, user1)]:
+                        payload = {
+                            "matchId": match_id,
+                            "matchedWith": partner,
+                            "question": question,
+                            "userId": user['id'],
+                        }
+                        await redis_client.set(f"user_session:{user['id']}", json.dumps(payload))
+
+                    # 4. Acknowledge message (Removes it from PEL)
+                    await redis_client.xack(stream_name, group_name, message_id)
+                    print(f"[+] Worker: Initialized session and user data for match {match_id}")
+
+        except Exception as e:
+            print(f"[!] Worker Error: {e}")
+            await asyncio.sleep(2) # Backoff
 
 # ── Socket.IO membership helper ───────────────────────────────────────────────
  
@@ -56,7 +117,19 @@ sio = socketio.AsyncServer(
     cors_allowed_origins='*'
 )
 
-app = FastAPI(title="PeerPrep Collaboration Service")
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup: Start worker
+    worker_task = asyncio.create_task(consume_match_events())
+    yield
+    # Shutdown: Stop worker
+    worker_task.cancel()
+    try:
+        await worker_task
+    except asyncio.CancelledError:
+        pass
+
+app = FastAPI(title="PeerPrep Collaboration Service", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,

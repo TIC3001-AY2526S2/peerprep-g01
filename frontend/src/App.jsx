@@ -27,19 +27,49 @@ function CollabRoute() {
     fetch(`${COLLAB_URL}/session/user/${user.id}`, {
       headers: { Authorization: `Bearer ${token}` },
     })
-      .then((r) => r.json())
+      .then((r) => {
+        if (r.status === 401 || r.status === 403) {
+          setStatus("unauthorized");
+          return;
+        }
+        return r.json();
+      })
       .then((data) => {
-        if (data.session?.matchId === matchId) {
+        if (data?.session?.matchId === matchId) {
           setStatus("authorized");
-        } else {
+        } else if (data) {
+          // Server responded but matchId doesn't match
           setStatus("unauthorized");
         }
       })
-      .catch(() => setStatus("unauthorized"));
+      .catch((e) => {
+        // 1. Check if it's a Network Error (Connection Refused)
+        if (e instanceof TypeError || e.message === "Failed to fetch") {
+          console.warn("[!] Collab Service is offline. Pausing authorization check...");
+          setStatus("offline"); // New state!
+        } else {
+          setStatus("unauthorized");
+        }
+      });
   }, [token, user, matchId]);
 
+  // --- The Render Logic ---
   if (status === "checking") return <p>Verifying session...</p>;
+
+  if (status === "offline") {
+    return (
+      <div className="app-container" style={{ textAlign: 'center', marginTop: '50px' }}>
+        <h2>Service Connection Lost</h2>
+        <p>We can't reach the Collaboration Service right now.</p>
+        <p style={{ color: '#7b8ab8' }}>Attempting to reconnect in the background... Please don't refresh.</p>
+        {/* Optionally render the session anyway if you have location.state fallback */}
+        <button onClick={() => window.location.reload()}>Retry Manually</button>
+      </div>
+    );
+  }
+
   if (status === "unauthorized") return <Navigate to="/homepage" replace />;
+
   return <CollabSession />;
 }
 

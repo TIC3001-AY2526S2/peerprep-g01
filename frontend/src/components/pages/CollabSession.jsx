@@ -160,20 +160,39 @@ export default function CollabSession() {
   const partnerName = sessionData.matchedWith?.username || "Partner";
   const question = sessionData.question;
 
-  useEffect(() => {
-    if (sessionData.question) return;
+useEffect(() => {
+  // 1. Check if we already have the question (either from previous fetch or location state)
+  if (sessionData.question) {
+    setLoadingSession(false);
+    return;
+  }
 
-    fetch(`${COLLAB_URL}/session/${matchId}`)
-      .then((r) => r.json())
-      .then((data) => {
+  // 2. If we don't have it, try to fetch it
+  fetch(`${COLLAB_URL}/session/${matchId}`)
+    .then((r) => {
+      if (!r.ok) throw new Error("Service Unavailable");
+      return r.json();
+    })
+    .then((data) => {
+      if (data.question) {
         setSessionData((prev) => ({
           ...prev,
-          question: data.question || null,
+          question: data.question,
         }));
-      })
-      .catch((e) => console.error("[!] Failed to recover session:", e))
-      .finally(() => setLoadingSession(false));
-  }, [matchId, sessionData.question]);
+      }
+    })
+    .catch((e) => {
+      // 3. SILENT FAILURE:
+      // Log the error but DON'T redirect.
+      // The socket will try to reconnect in the background automatically.
+      console.error("[!] Collab Service is down. Waiting for background sync...", e);
+    })
+    .finally(() => {
+      // Ensure the UI stops showing the "Loading..." spinner
+      // so the user can at least see the editor/chat (even if disconnected)
+      setLoadingSession(false);
+    });
+}, [matchId, sessionData.question]);
 
   const debouncedEmit = useMemo(
     () =>
